@@ -3,6 +3,8 @@ package com.github.lyd.common.utils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -349,20 +351,32 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
         return idCard.replaceAll("(\\d{4})\\d{10}(\\w{4})", "$1*****$2");
     }
 
-    private static Pattern mobilePattern = Pattern.compile("^((13[0-9][0-9])|14[5,7][0-9]|(15[^4,\\D][0-9])|(17[0-9][0-9])|(18[0-9][0-9]))\\d{7}$");
-
     /**
      * 检测是否未手机号
      *
-     * @param mobiles
+     * @param mobile
      * @return
      */
-    public static boolean matchMobile(String mobiles) {
-        if (mobiles == null) {
+    public static boolean matchMobile(String mobile) {
+        if (mobile == null) {
             return false;
         }
-        Matcher m = mobilePattern.matcher(mobiles);
-        return m.matches();
+        String regex = "^((13[0-9][0-9])|14[5,7][0-9]|(15[^4,\\D][0-9])|(17[0-9][0-9])|(18[0-9][0-9]))\\d{7}$";
+        return Pattern.matches(regex,mobile);
+    }
+
+    /**
+     * 检测Email
+     *
+     * @param email
+     * @return
+     */
+    public static boolean matchEmail(String email) {
+        if (email == null) {
+            return false;
+        }
+        String regex = "\\w+@\\w+\\.[a-z]+(\\.[a-z]+)?";
+        return Pattern.matches(regex, email);
     }
 
 
@@ -410,51 +424,6 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
             luhmSum += k;
         }
         return (luhmSum % 10 == 0) ? '0' : (char) ((10 - luhmSum % 10) + '0');
-    }
-
-    /**
-     * 检测Email
-     *
-     * @param email
-     * @return
-     */
-    public static boolean matchEmail(String email) {
-        if (email == null) {
-            return false;
-        }
-        String regEx1 = "^([a-z0-9A-Z]+[-|\\.]?)+[a-z0-9A-Z]@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-zA-Z]{2,}$";
-        Pattern p;
-        Matcher m;
-        p = Pattern.compile(regEx1);
-        m = p.matcher(email);
-        if (m.matches()) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * 检查系统用户名称
-     * 中英文,8-16位
-     *
-     * @param username
-     * @return
-     */
-    public static boolean matchUsername(String username) {
-        if (username == null) {
-            return false;
-        }
-        String regex = "^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,16}$";
-        Pattern p;
-        Matcher m;
-        p = Pattern.compile(username);
-        m = p.matcher(username);
-        if (m.matches()) {
-            return true;
-        } else {
-            return false;
-        }
     }
 
 
@@ -553,9 +522,24 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     }
 
 
-    public static void main(String[] args) {
+    /**
+     * 将 Exception 转化为 String
+     */
+    public static String getExceptionToString(Throwable e) {
+        if (e == null){
+            return "";
+        }
+        StringWriter stringWriter = new StringWriter();
+        e.printStackTrace(new PrintWriter(stringWriter));
+        return stringWriter.toString();
+    }
 
-        System.out.println(checkPassword("f0a2adfdf56241bf839d714f7f74f4d1"));
+    public static void main(String[] args) {
+        if (StringUtils.matchEmail("515608851@qq.com")) {
+            System.out.println("22");
+        }
+//        System.out.println("test");
+//        System.out.println(checkPassword("f0a2adfdf56241bf839d714f7f74f4d1"));
      /*   String value = null;
         value = stripXss("<script language=text/javascript>alert(document.cookie);</script>");
         System.out.println("type-1: '" + value + "'");

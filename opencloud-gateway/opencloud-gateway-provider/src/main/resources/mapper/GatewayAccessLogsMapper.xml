@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.lyd.gateway.provider.mapper.GatewayLogsMapper">
+  <resultMap id="BaseResultMap" type="com.github.lyd.gateway.client.model.entity.GatewayAccessLogs">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="access_id" jdbcType="BIGINT" property="accessId" />
+    <result column="path" jdbcType="VARCHAR" property="path" />
+    <result column="method" jdbcType="VARCHAR" property="method" />
+    <result column="service_id" jdbcType="VARCHAR" property="serviceId" />
+    <result column="ip" jdbcType="VARCHAR" property="ip" />
+    <result column="http_status" jdbcType="VARCHAR" property="httpStatus" />
+    <result column="request_time" jdbcType="TIMESTAMP" property="requestTime" />
+    <result column="response_time" jdbcType="TIMESTAMP" property="responseTime" />
+    <result column="use_time" jdbcType="BIGINT" property="useTime" />
+    <result column="params" jdbcType="LONGVARCHAR" property="params" />
+    <result column="headers" jdbcType="LONGVARCHAR" property="headers" />
+    <result column="user_agent" jdbcType="LONGVARCHAR" property="userAgent" />
+    <result column="region" jdbcType="VARCHAR" property="region" />
+    <result column="authentication" jdbcType="LONGVARCHAR" property="authentication" ></result>
+    <result column="server_ip" jdbcType="VARCHAR" property="serverIp" />
+    <result column="error" jdbcType="VARCHAR" property="error" />
+  </resultMap>
+</mapper>

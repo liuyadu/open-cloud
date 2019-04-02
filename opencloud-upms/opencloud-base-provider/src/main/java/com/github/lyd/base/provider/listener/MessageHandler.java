@@ -1,10 +1,7 @@
 package com.github.lyd.base.provider.listener;
 
-import com.github.lyd.base.client.constants.BaseConstants;
-import com.github.lyd.base.client.entity.SystemAccessLogs;
-import com.github.lyd.base.client.entity.SystemApi;
-import com.github.lyd.base.provider.mapper.SystemAccessLogsMapper;
-import com.github.lyd.base.provider.service.SystemApiService;
+import com.github.lyd.base.client.model.entity.BaseResourceApi;
+import com.github.lyd.base.provider.service.BaseResourceApiService;
 import com.github.lyd.common.constants.MqConstants;
 import com.github.lyd.common.http.OpenRestTemplate;
 import com.github.lyd.common.utils.BeanConvertUtils;
@@ -26,11 +23,9 @@ import java.util.Map;
 @Slf4j
 public class MessageHandler {
     @Autowired
-    private SystemApiService apiService;
+    private BaseResourceApiService baseResourceApiService;
     @Autowired
-    private OpenRestTemplate openRestTemplate;
-    @Autowired
-    private SystemAccessLogsMapper systemAccessLogsMapper;
+    private OpenRestTemplate restTemplate;
 
     /**
      * 接收API资源扫描消息
@@ -41,47 +36,30 @@ public class MessageHandler {
     public void ScanApiResourceQueue(@Payload List<Map> list) {
         try {
             if (list != null && list.size() > 0) {
-                log.info("【apiResourceQueue监听到消息】" + list.toString());
+                log.info("【apiResourceQueue监听到消息】");
                 for (Map map : list) {
                     try {
-                        SystemApi api = BeanConvertUtils.mapToObject(map, SystemApi.class);
-                        SystemApi save = apiService.getApi(api.getApiCode(), api.getServiceId());
+                        BaseResourceApi api = BeanConvertUtils.mapToObject(map, BaseResourceApi.class);
+                        BaseResourceApi save = baseResourceApiService.getApi(api.getApiCode(), api.getServiceId());
                         if (save == null) {
-                            api.setIsPersist(BaseConstants.ENABLED);
-                            apiService.addApi(api);
+                            api.setIsOpen(0);
+                            api.setIsAuth(1);
+                            api.setIsPersist(1);
+                            baseResourceApiService.addApi(api);
                         } else {
+                            api.setIsOpen(null);
                             api.setApiId(save.getApiId());
-                            apiService.updateApi(api);
+                            baseResourceApiService.updateApi(api);
                         }
                     } catch (Exception e) {
+                        e.printStackTrace();
                         log.error("添加资源error:", e.getMessage());
                     }
                 }
-
-                // 重新刷新网关
-                openRestTemplate.refreshGateway();
+                restTemplate.refreshGateway();
             }
-        }catch (Exception e){
-            log.error("error:",e);
-        }
-    }
-
-    /**
-     * 接收访问日志
-     *
-     * @param access
-     */
-    @RabbitListener(queues = MqConstants.QUEUE_ACCESS_LOGS)
-    public void accessLogsQueue(@Payload Map access) {
-        try {
-            if (access != null) {
-                SystemAccessLogs accessLogs = BeanConvertUtils.mapToObject(access, SystemAccessLogs.class);
-                if (accessLogs != null) {
-                    systemAccessLogsMapper.insertSelective(accessLogs);
-                }
-            }
-        }catch (Exception e){
-            log.error("error:",e);
+        } catch (Exception e) {
+            log.error("error:", e);
         }
     }
 }

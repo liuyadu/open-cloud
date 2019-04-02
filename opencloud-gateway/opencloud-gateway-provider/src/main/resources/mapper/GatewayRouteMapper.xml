@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.github.lyd.gateway.provider.mapper.GatewayRouteMapper">
+    <resultMap id="BaseResultMap" type="com.github.lyd.gateway.client.model.entity.GatewayRoute">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="route_id" property="routeId" jdbcType="BIGINT"/>
+        <result column="path" property="path" jdbcType="VARCHAR"/>
+        <result column="service_id" property="serviceId" jdbcType="VARCHAR"/>
+        <result column="url" property="url" jdbcType="VARCHAR"/>
+        <result column="strip_prefix" property="stripPrefix" jdbcType="INTEGER"/>
+        <result column="retryable" property="retryable" jdbcType="INTEGER"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
+        <result column="route_desc" property="routeDesc" jdbcType="VARCHAR"/>
+        <result column="is_persist" property="isPersist" jdbcType="INTEGER"/>
+    </resultMap>
+</mapper>

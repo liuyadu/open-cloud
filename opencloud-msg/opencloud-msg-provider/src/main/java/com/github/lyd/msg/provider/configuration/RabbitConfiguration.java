@@ -24,7 +24,7 @@
  */
 package com.github.lyd.msg.provider.configuration;
 
-import com.github.lyd.msg.client.constants.MessageConstants;
+import com.github.lyd.msg.client.exchange.DelayExchangeBuilder;
 import org.springframework.amqp.core.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,82 +36,47 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitConfiguration {
     /**
-     * 消息中心实际消费队列交换配置
+     * http异步通知队列
+     */
+    public final static  String HTTP_NOTIFY_QUEUE = "openCloud.notify.http.queue";
+
+    /**
+     * http异步通知队列路由key
+     */
+    public final static  String HTTP_NOTIFY_QUEUE_RK = "openCloud.notify.http.queue.rk";
+
+    /**
+     * 延时队列交换机
+     * 注意这里的交换机类型：CustomExchange
+     * 创建exchange时指定exchange_type为x-delayed-message
+     * 添加参数，这里指定exchange类型arguments={"x-delayed-type": "fanout"}
+     * 添加消息到队列时添加
+     * headers={'x-delay': 8000}
      *
      * @return
      */
     @Bean
-    DirectExchange directExchange() {
-        return (DirectExchange) ExchangeBuilder
-                .directExchange(MessageConstants.EXCHANGE)
-                .durable(true)
-                .build();
+    public CustomExchange delayExchange() {
+        return DelayExchangeBuilder.buildExchange();
     }
 
     /**
-     * 消息中心实际消费队列配置
+     * HTTP通知队列
      *
      * @return
      */
     @Bean
-    public Queue queueMsg() {
-        return new Queue(MessageConstants.QUEUE_MSG, true);
+    public Queue httpNotifyQueue() {
+        return new Queue(HTTP_NOTIFY_QUEUE, true);
     }
 
     /**
-     * 消息中心实际消息交换与队列绑定
+     * HTTP通知队列绑定延迟交换器
      *
      * @return
      */
     @Bean
-    Binding bindingMsg() {
-        return BindingBuilder
-                .bind(queueMsg())
-                .to(directExchange())
-                .with(MessageConstants.RK_MSG);
-    }
-
-    /**
-     * 延迟消息配置交换器
-     *
-     * @return
-     */
-    @Bean
-    DirectExchange directExchangeDelay() {
-        return (DirectExchange) ExchangeBuilder
-                .directExchange(MessageConstants.EXCHANGE_DELAY)
-                .durable(true)
-                .build();
-    }
-
-    /**
-     * 延迟消息配置Delay队列
-     *
-     * @return
-     */
-    @Bean
-    Queue queueMsgDelay() {
-        return QueueBuilder
-                .durable(MessageConstants.QUEUE_MSG_DELAY)
-                // 默认消息过期时间
-                .withArgument("x-message-ttl", 3600000)
-                // 配置到期后转发的交换
-                .withArgument("x-dead-letter-exchange", MessageConstants.EXCHANGE)
-                // 配置到期后转发的路由键
-                .withArgument("x-dead-letter-routing-key", MessageConstants.RK_MSG)
-                .build();
-    }
-
-    /**
-     * 延迟消息配置Delay绑定实际消息中心实际消费交换机
-     *
-     * @return
-     */
-    @Bean
-    public Binding bindingMsgDelay() {
-        return BindingBuilder
-                .bind(queueMsgDelay())
-                .to(directExchangeDelay())
-                .with(MessageConstants.RK_MSG_DELAY);
+    public Binding httpNotifyQueueBinding(Queue httpNotifyQueue, Exchange delayExchange) {
+        return BindingBuilder.bind(httpNotifyQueue).to(delayExchange).with(HTTP_NOTIFY_QUEUE_RK).noargs();
     }
 }

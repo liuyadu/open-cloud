@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.lyd.base.provider.mapper.BaseAppAuthorityMapper">
+    <resultMap id="BaseResultMap" type="com.github.lyd.base.client.model.entity.BaseAppAuthority">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <result column="authority_id" jdbcType="BIGINT" property="authorityId"/>
+        <result column="app_id" jdbcType="VARCHAR" property="appId"/>
+        <result column="expire_time" jdbcType="TIMESTAMP" property="expireTime"/>
+    </resultMap>
+
+    <select id="selectAppGrantedAuthority"
+            resultMap="com.github.lyd.base.provider.mapper.BaseAuthorityMapper.OpenGrantedAuthority">
+    SELECT
+      a.authority_id,
+      a.authority,
+      ap.expire_time,
+      'app' as owner
+    FROM
+      base_app_authority AS ap
+        LEFT JOIN base_authority AS a ON ap.authority_id = a.authority_id
+    WHERE
+      ap.app_id = #{appId}
+      and  a.status = 1
+  </select>
+</mapper>

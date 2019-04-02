@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.lyd.gateway.provider.mapper.GatewayIpLimitApisMapper">
+  <resultMap id="BaseResultMap" type="com.github.lyd.gateway.client.model.entity.GatewayIpLimitApi">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <result column="policy_id" jdbcType="BIGINT" property="policyId" />
+    <result column="api_id" jdbcType="BIGINT" property="apiId" />
+  </resultMap>
+
+  <resultMap id="ApiResultMap" type="com.github.lyd.base.client.model.entity.BaseResourceApi">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="api_id" property="apiId" jdbcType="BIGINT"/>
+    <result column="api_code" property="apiCode" jdbcType="VARCHAR"/>
+    <result column="api_name" property="apiName" jdbcType="VARCHAR"/>
+    <result column="api_desc" property="apiDesc" jdbcType="VARCHAR"/>
+    <result column="api_category" property="apiCategory" jdbcType="VARCHAR"/>
+    <result column="service_id" property="serviceId" jdbcType="VARCHAR"/>
+    <result column="path" property="path" jdbcType="VARCHAR"/>
+    <result column="priority" property="priority" jdbcType="INTEGER"/>
+    <result column="status" property="status" jdbcType="TINYINT"/>
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    <result column="is_persist" property="isPersist" jdbcType="INTEGER"/>
+    <result column="is_open" property="isOpen" jdbcType="INTEGER"/>
+    <result column="auth_type" property="authType" jdbcType="INTEGER"/>
+  </resultMap>
+
+  <resultMap id="IpLimitApisDto" extends="ApiResultMap" type="com.github.lyd.gateway.client.model.GatewayIpLimitApisDto">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <result column="policy_id" jdbcType="BIGINT" property="policyId" />
+    <result column="policy_name" jdbcType="VARCHAR" property="policyName" />
+    <result column="policy_type" jdbcType="TINYINT" property="policyType" />
+    <result column="ip_address" jdbcType="VARCHAR" property="ipAddress" />
+  </resultMap>
+
+  <select id="selectIpLimitApisDto" resultMap="IpLimitApisDto">
+    SELECT
+    i.policy_id,
+    i.api_id,
+    p.policy_name,
+    p.policy_type,
+    a.api_code,
+    a.api_name,
+    a.api_category,
+    a.service_id,
+    a.path,
+    p.ip_address
+    FROM
+    gateway_ip_limit_api AS i
+    INNER JOIN gateway_ip_limit AS p ON i.policy_id = p.policy_id
+    INNER JOIN base_resource_api AS a ON i.api_id = a.api_id
+     <where>
+       <if test="policyType!=null">
+          p.policy_type = #{policyType}
+       </if>
+     </where>
+  </select>
+</mapper>

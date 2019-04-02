@@ -1,10 +1,13 @@
 package com.github.lyd.common.model;
 
+import com.github.lyd.common.constants.CommonConstants;
+import com.github.lyd.common.utils.BeanConvertUtils;
 import com.github.lyd.common.utils.StringUtils;
+import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * 分页参数
@@ -15,24 +18,36 @@ import java.io.Serializable;
 @ApiModel(value = "分页参数")
 public class PageParams implements Serializable {
     private static final long serialVersionUID = -1710273706052960025L;
-    private static final int MIN_PAGE = 0;
-    private static final int MAX_LIMIT = 999;
-    private static final int DEFAULT_PAGE = 1;
-    private static final int DEFAULT_LIMIT = 10;
-    @ApiModelProperty(name = "page", value = "当前页码", example = "1", required = false)
-    private int page = DEFAULT_PAGE;
-    @ApiModelProperty(name = "limit", value = "显示条数:最大999", example = "10", required = false)
-    private int limit = DEFAULT_LIMIT;
-    @ApiModelProperty(name = "sort", value = "排序字段")
+    private int page = CommonConstants.DEFAULT_PAGE;
+    private int limit = CommonConstants.DEFAULT_LIMIT;
     private String sort;
-    @ApiModelProperty(name = "order", value = "排序方向:asc-正序 desc-逆序",example = "asc")
     private String order;
+    private Map<String, Object> requestMap = Maps.newHashMap();
     /**
      * 排序
      */
     private String orderBy;
 
+    public static void main(String[] args) {
+        System.out.println((String) "");
+    }
+
     public PageParams() {
+    }
+
+    public PageParams(Map map) {
+        if (map == null) {
+            map = Maps.newHashMap();
+        }
+        this.page = Integer.parseInt(map.getOrDefault(CommonConstants.PAGE_KEY, CommonConstants.DEFAULT_PAGE).toString());
+        this.limit = Integer.parseInt(map.getOrDefault(CommonConstants.PAGE_LIMIT_KEY, CommonConstants.DEFAULT_LIMIT).toString());
+        this.sort = (String) map.getOrDefault(CommonConstants.PAGE_SORT_KEY, "");
+        this.order = (String) map.getOrDefault(CommonConstants.PAGE_ORDER_KEY, "");
+        map.remove(CommonConstants.PAGE_KEY);
+        map.remove(CommonConstants.PAGE_LIMIT_KEY);
+        map.remove(CommonConstants.PAGE_SORT_KEY);
+        map.remove(CommonConstants.PAGE_ORDER_KEY);
+        requestMap.putAll(map);
     }
 
     public PageParams(int page, int limit) {
@@ -47,7 +62,7 @@ public class PageParams implements Serializable {
     }
 
     public int getPage() {
-        if (page <= MIN_PAGE) {
+        if (page <= CommonConstants.MIN_PAGE) {
             page = 1;
         }
         return page;
@@ -58,8 +73,8 @@ public class PageParams implements Serializable {
     }
 
     public int getLimit() {
-        if (limit > MAX_LIMIT) {
-            limit = MAX_LIMIT;
+        if (limit > CommonConstants.MAX_LIMIT) {
+            limit = CommonConstants.MAX_LIMIT;
         }
         return limit;
     }
@@ -96,5 +111,9 @@ public class PageParams implements Serializable {
 
     public void setOrderBy(String orderBy) {
         this.orderBy = orderBy;
+    }
+
+    public <T> T mapToObject(Class<T> t) {
+        return BeanConvertUtils.mapToObject(this.requestMap, t);
     }
 }

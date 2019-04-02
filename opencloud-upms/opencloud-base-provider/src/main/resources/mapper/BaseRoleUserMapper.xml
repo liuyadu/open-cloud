@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.github.lyd.base.provider.mapper.BaseRoleUserMapper">
+    <resultMap id="BaseResultMap" type="com.github.lyd.base.client.model.entity.BaseRoleUser">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <result column="user_id" property="userId" jdbcType="BIGINT"/>
+        <result column="role_id" property="roleId" jdbcType="BIGINT"/>
+    </resultMap>
+
+    <select id="selectUserRoleList" resultMap="com.github.lyd.base.provider.mapper.BaseRoleMapper.BaseResultMap">
+        SELECT
+        base_role_user.user_id,
+        base_role.role_id,
+        base_role.role_code,
+        base_role.role_name,
+        base_role.role_desc,
+        base_role.status,
+        base_role.create_time,
+        base_role.update_time
+        FROM
+        base_role_user
+        LEFT JOIN base_role ON base_role_user.role_id = base_role.role_id
+        WHERE user_id = #{userId}  and status = 1
+    </select>
+
+
+    <select id="selectUserRoleIdList" resultType="java.lang.Long">
+        SELECT
+        base_role.role_id
+        FROM
+        base_role_user
+        LEFT JOIN base_role ON base_role_user.role_id = base_role.role_id
+        WHERE user_id = #{userId}  and status = 1
+    </select>
+</mapper>

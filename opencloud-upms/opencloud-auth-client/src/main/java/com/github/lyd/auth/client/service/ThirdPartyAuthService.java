@@ -1,7 +1,7 @@
 package com.github.lyd.auth.client.service;
 
 import com.alibaba.fastjson.JSONObject;
-import com.github.lyd.auth.client.entity.ThirdPartyAuthClientDetails;
+import com.github.lyd.auth.client.config.SocialOAuth2ClientDetails;
 
 /**
  * 第三方登录接口
@@ -59,5 +59,5 @@ public interface ThirdPartyAuthService {
      * 获取客户端配置信息
      * @return
      */
-    ThirdPartyAuthClientDetails getClientDetails();
+    SocialOAuth2ClientDetails getClientDetails();
 }

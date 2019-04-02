@@ -8,6 +8,11 @@ package com.github.lyd.base.client.constants;
 public class BaseConstants {
 
     /**
+     * 服务名称
+     */
+    public static final String BASE_SERVICE = "opencloud-base-provider";
+
+    /**
      * 默认oauth2授权类型
      */
     public final static String DEFAULT_OAUTH2_GRANT_TYPES = "authorization_code,refresh_token,client_credentials";
@@ -44,26 +49,6 @@ public class BaseConstants {
     public final static String USER_ACCOUNT_TYPE_USERNAME = "username";
     public final static String USER_ACCOUNT_TYPE_EMAIL = "email";
     public final static String USER_ACCOUNT_TYPE_MOBILE = "mobile";
-    public final static String USER_ACCOUNT_TYPE_QQ = "qq";
-    public final static String USER_ACCOUNT_TYPE_WEIXIN = "wechat";
-    public final static String USER_ACCOUNT_TYPE_GITEE = "gitee";
-
-    /**
-     * 资源类型
-     * MENU:菜单、ACTION:操作、API:接口
-     */
-    public final static String RESOURCE_TYPE_MENU = "MENU";
-    public final static String RESOURCE_TYPE_ACTION = "ACTION";
-    public final static String RESOURCE_TYPE_API = "API";
-
-    /**
-     * 权限所有者
-     * user:系统用户权限、role:角色权限、app:应用权限
-     */
-    public final static String AUTHORITY_SEPARATOR = "_";
-    public final static String AUTHORITY_PREFIX_ROLE = "ROLE_";
-    public final static String AUTHORITY_PREFIX_USER = "USER_";
-    public final static String AUTHORITY_PREFIX_APP = "APP_";
 
     /**
      * 应用类型
@@ -78,4 +63,6 @@ public class BaseConstants {
      */
     public final static String APP_IOS = "ios";
     public final static String APP_ANDROID = "android";
+
+
 }

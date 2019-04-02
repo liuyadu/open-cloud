@@ -32,8 +32,8 @@ import tk.mybatis.spring.annotation.MapperScan;
 
 
 /**
- * 认证服务
- * 提供微服务间oauth2统一认证服务
+ * 平台认证服务
+ * 提供微服务间oauth2统一平台认证服务
  * 提供认证客户端、令牌、已授权管理`
  *
  * @author liuyadu

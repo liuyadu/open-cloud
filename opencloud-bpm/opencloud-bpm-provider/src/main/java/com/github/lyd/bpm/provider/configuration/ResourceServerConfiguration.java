@@ -1,6 +1,6 @@
 package com.github.lyd.bpm.provider.configuration;
 
-import com.github.lyd.common.constants.AuthorityConstants;
+import com.github.lyd.common.constants.CommonConstants;
 import com.github.lyd.common.exception.OpenAccessDeniedHandler;
 import com.github.lyd.common.exception.OpenAuthenticationEntryPoint;
 import com.github.lyd.common.security.OpenHelper;
@@ -39,7 +39,7 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
                 .and()
                 .authorizeRequests()
                 //只有超级管理员角色可执行远程端点
-                .requestMatchers(EndpointRequest.toAnyEndpoint()).hasAnyAuthority(AuthorityConstants.AUTHORITY_ACTUATOR)
+                .requestMatchers(EndpointRequest.toAnyEndpoint()).hasAnyAuthority(CommonConstants.AUTHORITY_ACTUATOR)
                 .anyRequest().authenticated()
                 .and()
                 //认证鉴权错误处理,为了统一异常处理。每个资源服务器都应该加上。

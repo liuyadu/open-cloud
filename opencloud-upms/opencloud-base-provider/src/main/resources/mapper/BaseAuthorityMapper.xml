@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.lyd.base.provider.mapper.BaseAuthorityMapper">
+    <resultMap id="BaseResultMap" type="com.github.lyd.base.client.model.entity.BaseAuthority">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="authority_id" jdbcType="BIGINT" property="authorityId"/>
+        <result column="authority" jdbcType="VARCHAR" property="authority"/>
+        <result column="menu_id" jdbcType="BIGINT" property="menuId"/>
+        <result column="api_id" jdbcType="BIGINT" property="apiId"/>
+        <result column="operation_id" jdbcType="BIGINT" property="operationId"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <resultMap id="AccessAuthority" type="com.github.lyd.base.client.model.AccessAuthority">
+        <result column="path" jdbcType="VARCHAR" property="path"/>
+        <result column="authority" jdbcType="VARCHAR" property="authority"/>
+        <result column="service_id" jdbcType="TIMESTAMP" property="serviceId"/>
+        <result column="is_auth" jdbcType="INTEGER" property="isAuth"/>
+    </resultMap>
+
+    <resultMap id="OpenGrantedAuthority" type="com.github.lyd.common.security.OpenGrantedAuthority">
+        <result column="authority_id" jdbcType="BIGINT" property="authorityId"/>
+        <result column="authority" jdbcType="VARCHAR" property="authority"/>
+        <result column="expire_time" jdbcType="TIMESTAMP" property="expireTime"/>
+        <result column="owner" jdbcType="VARCHAR" property="owner"/>
+    </resultMap>
+
+    <resultMap id="BaseMenuAuthority" type="com.github.lyd.base.client.model.BaseMenuAuthority"
+               extends="com.github.lyd.base.provider.mapper.BaseResourceMenuMapper.BaseResultMap">
+        <result column="authority_id" jdbcType="BIGINT" property="authorityId"/>
+        <result column="authority" jdbcType="VARCHAR" property="authority"/>
+        <collection property="operationList" column="{menuId=menu_id,status=status}" select="selectOperationAuthority"/>
+    </resultMap>
+
+    <resultMap id="BaseOperationAuthority" type="com.github.lyd.base.client.model.BaseOperationAuthority"
+               extends="com.github.lyd.base.provider.mapper.BaseResourceOperationMapper.BaseResultMap">
+        <result column="authority_id" jdbcType="BIGINT" property="authorityId"/>
+        <result column="authority" jdbcType="VARCHAR" property="authority"/>
+        <result column="service_id" jdbcType="VARCHAR" property="serviceId"/>
+    </resultMap>
+
+    <resultMap id="BaseApiAuthority" type="com.github.lyd.base.client.model.BaseApiAuthority"
+               extends="com.github.lyd.base.provider.mapper.BaseResourceApiMapper.BaseResultMap">
+        <result column="authority_id" jdbcType="BIGINT" property="authorityId"/>
+        <result column="authority" jdbcType="VARCHAR" property="authority"/>
+    </resultMap>
+
+    <select id="selectMenuAuthority" resultMap="BaseMenuAuthority">
+        SELECT
+            a.authority_id,
+            a.authority,
+            m.*
+        FROM
+            base_authority AS a
+        INNER JOIN base_resource_menu AS m ON a.menu_id = m.menu_id
+        <where>
+            <if test="status!=null">
+                AND m.status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectOperationAuthority" resultMap="BaseOperationAuthority">
+        SELECT
+        a.authority_id,
+        a.authority,
+        o.*
+        FROM
+        base_authority AS a
+        INNER JOIN base_resource_operation AS o ON a.operation_id = o.operation_id
+        <if test="roleId!=null">
+            INNER JOIN base_role_authority AS ra ON ra.authority_id = a.authority_id
+        </if>
+        <if test="userId!=null">
+            INNER JOIN base_user_authority AS ua ON ua.authority_id = a.authority_id
+        </if>
+        <where>
+            <if test="status!=null">
+                AND o.status = #{status}
+            </if>
+            <if test="menuId!=null">
+                AND o.menu_id = #{menuId}
+            </if>
+            <if test="roleId!=null">
+                AND ra.role_id = #{roleId}
+            </if>
+            <if test="userId!=null">
+                AND ua.user_id = #{userId}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectApiAuthority" resultMap="BaseApiAuthority">
+        SELECT
+        a.authority_id,
+        a.authority,
+        api.*
+        FROM
+        base_authority AS a
+        INNER JOIN base_resource_api AS api ON a.api_id = api.api_id
+        <where>
+            <if test="status!=null">
+                AND api.status = #{status}
+            </if>
+            <if test="serviceId!=null">
+                AND api.service_id = #{serviceId}
+            </if>
+            <if test="isOpen!=null">
+                AND api.is_open = #{isOpen}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectAllGrantedAuthority"
+            resultMap="OpenGrantedAuthority">
+        select
+        authority_id,
+        authority,
+        'user' as owner
+        from base_authority
+        <where>
+            <if test="status!=null">
+              AND  status = #{status}
+            </if>
+            <if test="type!=null and type!='' and type == '1'.toString()">
+                and api_id is null
+            </if>
+            <if test="type!=null and type!='' and type == '2'.toString()">
+                and api_id is not null
+            </if>
+        </where>
+    </select>
+
+    <select id="selectAccessAuthority" resultMap="AccessAuthority">
+        SELECT
+            a.authority_id,
+            a.authority,
+            menu.path,
+            menu.service_id,
+            '1' AS is_auth
+        FROM
+            base_authority AS a
+                INNER JOIN base_resource_menu AS menu ON a.menu_id = menu.menu_id
+        WHERE
+            menu.`status` = 1
+        UNION ALL
+        SELECT
+            a.authority_id,
+            a.authority,
+            api.path,
+            api.service_id,
+            api.is_auth
+        FROM
+            base_authority AS a
+                INNER JOIN base_resource_api AS api ON a.api_id = api.api_id
+        WHERE
+            api.`status` = 1
+        UNION ALL
+        SELECT
+            a.authority_id,
+            a.authority,
+            api.path,
+            api.service_id,
+            api.is_auth
+        FROM
+            base_authority AS a
+                INNER JOIN base_resource_operation AS o ON a.operation_id = o.operation_id
+                INNER JOIN base_resource_operation_api AS oa ON oa.operation_id = o.operation_id
+                INNER JOIN base_resource_api AS api ON oa.api_id = api.api_id
+        WHERE
+            o.`status` = 1
+          AND api.`status` = 1
+    </select>
+</mapper>

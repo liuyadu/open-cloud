@@ -38,6 +38,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import tk.mybatis.spring.annotation.MapperScan;
 
 
 /**
@@ -52,6 +53,7 @@ import org.springframework.stereotype.Component;
 @EnableDiscoveryClient
 @SpringCloudApplication
 @RemoteApplicationEventScan(basePackages = "com.github.lyd.gateway.provider.event")
+@MapperScan(basePackages = "com.github.lyd.gateway.provider.mapper")
 public class GatewayApplication {
 
     public static void main(String[] args) {

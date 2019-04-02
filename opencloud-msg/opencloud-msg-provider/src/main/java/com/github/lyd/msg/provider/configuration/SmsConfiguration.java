@@ -1,6 +1,6 @@
 package com.github.lyd.msg.provider.configuration;
 
-import com.github.lyd.msg.client.dto.sms.SmsSender;
+import com.github.lyd.msg.provider.service.SmsSender;
 import com.github.lyd.msg.provider.service.impl.AliyunSmsSenderImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;

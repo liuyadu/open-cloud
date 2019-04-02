@@ -17,31 +17,18 @@ import java.util.Map;
 public class OpenHelper {
 
     /**
-     * 获取登录用户认证信息
+     * 获取认证用户信息
      * @return
      */
-    public static OpenUserAuth getUserAuth() {
+    public static OpenAuthUser getAuthUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() != null) {
-            if (authentication.getPrincipal() instanceof OpenUserAuth) {
-                return (OpenUserAuth) authentication.getPrincipal();
+            if (authentication.getPrincipal() instanceof OpenAuthUser) {
+                return (OpenAuthUser) authentication.getPrincipal();
             }
             if (authentication.getPrincipal() instanceof Map) {
-                return BeanConvertUtils.mapToObject((Map) authentication.getPrincipal(), OpenUserAuth.class);
+                return BeanConvertUtils.mapToObject((Map) authentication.getPrincipal(), OpenAuthUser.class);
             }
-        }
-        return null;
-    }
-
-    /**
-     * 获取登录用户详细资料
-     *
-     * @return
-     */
-    public static Map getUserProfile() {
-        OpenUserAuth userAuth = getUserAuth();
-        if (userAuth != null) {
-            return userAuth.getUserProfile();
         }
         return null;
     }
@@ -52,7 +39,7 @@ public class OpenHelper {
      * @return
      */
     public static Boolean hasAuthority(String authority) {
-        OpenUserAuth auth = getUserAuth();
+        OpenAuthUser auth = getAuthUser();
         if (auth == null) {
             return false;
         }
@@ -68,7 +55,7 @@ public class OpenHelper {
      * @return
      */
     public static DefaultAccessTokenConverter buildAccessTokenConverter() {
-        OpenUserAuthenticationConverter userAuthenticationConverter = new OpenUserAuthenticationConverter();
+        OpenAuthUserConverter userAuthenticationConverter = new OpenAuthUserConverter();
         DefaultAccessTokenConverter accessTokenConverter = new DefaultAccessTokenConverter();
         accessTokenConverter.setUserTokenConverter(userAuthenticationConverter);
         return accessTokenConverter;

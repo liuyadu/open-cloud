@@ -6,7 +6,7 @@
     <artifactId>generator</artifactId>
     <groupId>tk.mybatis</groupId>
     <packaging>jar</packaging>
-    <version>0.2.0</version>
+    <version>1.0.0</version>
     <description>Mybatis 通用 Mapper 代码生成器</description>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -27,8 +27,8 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.47</version>
             <scope>runtime</scope>
-            <version>${mysql.version}</version>
         </dependency>
         <!--Mybatis-->
         <dependency>

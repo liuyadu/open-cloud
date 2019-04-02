@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.lyd.base.provider.mapper.BaseRoleAuthorityMapper">
+    <resultMap id="BaseResultMap" type="com.github.lyd.base.client.model.entity.BaseRoleAuthority">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <result column="authority_id" jdbcType="BIGINT" property="authorityId"/>
+        <result column="role_id" jdbcType="BIGINT" property="roleId"/>
+        <result column="expire_time" jdbcType="TIMESTAMP" property="expireTime"/>
+    </resultMap>
+    <resultMap id="BaseRoleMenuAuthority" type="com.github.lyd.base.client.model.BaseMenuAuthority"
+               extends="com.github.lyd.base.provider.mapper.BaseResourceMenuMapper.BaseResultMap">
+        <result column="authority_id" jdbcType="BIGINT" property="authorityId"/>
+        <result column="authority" jdbcType="VARCHAR" property="authority"/>
+        <collection property="operationList" column="{menuId=menu_id,roleId=role_id}"
+                    select="com.github.lyd.base.provider.mapper.BaseAuthorityMapper.selectOperationAuthority"/>
+    </resultMap>
+
+    <select id="selectRoleGrantedAuthority"
+            resultMap="com.github.lyd.base.provider.mapper.BaseAuthorityMapper.OpenGrantedAuthority">
+        SELECT
+            a.authority_id,
+            a.authority,
+            rp.expire_time,
+            'role' as owner
+        FROM
+            base_role_authority AS rp
+                LEFT JOIN base_authority AS a ON rp.authority_id = a.authority_id
+        WHERE
+            rp.role_id = #{roleId}
+            and a.status = 1
+    </select>
+
+    <select id="selectRoleMenuAuthority"
+            resultMap="BaseRoleMenuAuthority">
+       SELECT
+            a.authority_id,
+            a.authority,
+            a.`status`,
+            m.*,
+            rp.role_id,
+            rp.expire_time
+        FROM
+            base_role_authority AS rp
+        INNER JOIN base_authority AS a ON rp.authority_id = a.authority_id
+        INNER JOIN base_resource_menu AS m ON a.menu_id = m.menu_id
+        WHERE
+                rp.role_id = #{roleId}
+                and a.status = 1
+    </select>
+</mapper>

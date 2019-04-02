@@ -5,13 +5,13 @@
     <parent>
         <artifactId>opencloud-upms</artifactId>
         <groupId>com.github.lyd</groupId>
-        <version>0.2.0</version>
+        <version>1.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>opencloud-base-client</artifactId>
     <version>${opencloud.base-client.version}</version>
     <packaging>jar</packaging>
-    <description>基础服务-接口</description>
+    <description>平台基础服务-接口</description>
     <dependencies>
         <dependency>
             <artifactId>opencloud-common-core</artifactId>

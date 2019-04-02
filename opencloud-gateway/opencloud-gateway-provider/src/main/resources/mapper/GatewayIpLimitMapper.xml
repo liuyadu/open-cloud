@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.lyd.gateway.provider.mapper.GatewayIpLimitMapper">
+  <resultMap id="BaseResultMap" type="com.github.lyd.gateway.client.model.entity.GatewayIpLimit">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="policy_id" jdbcType="BIGINT" property="policyId" />
+    <result column="policy_name" jdbcType="VARCHAR" property="policyName" />
+    <result column="policy_type" jdbcType="TINYINT" property="policyType" />
+    <result column="ip_address" jdbcType="VARCHAR" property="ipAddress" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+</mapper>

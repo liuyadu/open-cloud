@@ -1,14 +1,13 @@
 package com.github.lyd.gateway.provider.locator;
 
-import com.github.lyd.base.client.entity.SystemGatewayRoute;
+import com.github.lyd.gateway.client.model.entity.GatewayRoute;
+import com.github.lyd.gateway.provider.service.GatewayRouteService;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cloud.netflix.zuul.filters.SimpleRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.StringUtils;
 
 import java.util.LinkedHashMap;
@@ -25,22 +24,14 @@ import java.util.Map;
 @Slf4j
 public class ZuulRouteLocator extends SimpleRouteLocator {
 
-    private JdbcTemplate jdbcTemplate;
+    private GatewayRouteService gatewayRouteService;
     private ZuulProperties properties;
-    private List<SystemGatewayRoute> routeList;
+    private List<GatewayRoute> routeList;
 
-    public JdbcTemplate getJdbcTemplate() {
-        return jdbcTemplate;
-    }
-
-    public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
-        jdbcTemplate = jdbcTemplate;
-    }
-
-    public ZuulRouteLocator(String servletPath, ZuulProperties properties, JdbcTemplate jdbcTemplate) {
+    public ZuulRouteLocator(String servletPath, ZuulProperties properties, GatewayRouteService gatewayRouteService) {
         super(servletPath, properties);
         this.properties = properties;
-        this.jdbcTemplate = jdbcTemplate;
+        this.gatewayRouteService = gatewayRouteService;
     }
 
     /**
@@ -88,10 +79,9 @@ public class ZuulRouteLocator extends SimpleRouteLocator {
     public Map<String, ZuulRoute> loadRouteWithDb() {
         Map<String, ZuulProperties.ZuulRoute> routes = Maps.newLinkedHashMap();
         try {
-            routeList = jdbcTemplate.query("select * from system_gateway_route where status = 1 ", new
-                    BeanPropertyRowMapper<>(SystemGatewayRoute.class));
+            routeList = gatewayRouteService.findRouteList();
             if (routeList != null && routeList.size() > 0) {
-                for (SystemGatewayRoute result : routeList) {
+                for (GatewayRoute result : routeList) {
                     if (StringUtils.isEmpty(result.getPath())) {
                         continue;
                     }
@@ -101,6 +91,7 @@ public class ZuulRouteLocator extends SimpleRouteLocator {
                     ZuulProperties.ZuulRoute zuulRoute = new ZuulProperties.ZuulRoute();
 
                     BeanUtils.copyProperties(result, zuulRoute);
+                    zuulRoute.setId(result.getServiceId());
                     routes.put(zuulRoute.getPath(), zuulRoute);
                 }
             }
@@ -110,11 +101,11 @@ public class ZuulRouteLocator extends SimpleRouteLocator {
         return routes;
     }
 
-    public List<SystemGatewayRoute> getRouteList() {
+    public List<GatewayRoute> getRouteList() {
         return routeList;
     }
 
-    public void setRouteList(List<SystemGatewayRoute> routeList) {
+    public void setRouteList(List<GatewayRoute> routeList) {
         this.routeList = routeList;
     }
 }

@@ -27,10 +27,14 @@ public enum ResultEnum {
     EXPIRED_TOKEN(2007, "expired_token"),
     UNSUPPORTED_GRANT_TYPE(2008, "unsupported_grant_type"),
     UNSUPPORTED_RESPONSE_TYPE(2009, "unsupported_response_type"),
-    ACCESS_DENIED(2010, "access_denied"),
     TEMPORARILY_UNAVAILABLE(2011, "temporarily_unavailable"),
     UNAUTHORIZED(2012, "unauthorized"),
     SIGNATURE_DENIED(2013, "signature_denied"),
+
+    ACCESS_DENIED(4030, "access_denied"),
+    ACCESS_DENIED_BLACK_IP_LIMITED(4031, "access_denied_black_ip_limited"),
+    ACCESS_DENIED_WHITE_IP_LIMITED(4032, "access_denied_white_ip_limited"),
+    ACCESS_DENIED_AUTHORITY_EXPIRED(4033, "access_denied_authority_expired"),
 
     /**
      * 账号错误
@@ -55,6 +59,7 @@ public enum ResultEnum {
      */
     ERROR(5000, "error"),
     SERVICE_NOT_FOUND(5004, "service_not_found");
+
 
 
     private int code;

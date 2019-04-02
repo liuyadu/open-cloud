@@ -1,8 +1,8 @@
 package com.github.lyd.common.annotation;
 
 import com.github.lyd.common.constants.MqConstants;
+import com.github.lyd.common.utils.EncryptUtils;
 import com.github.lyd.common.utils.StringUtils;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -11,12 +11,21 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.MethodParameter;
 import org.springframework.core.env.Environment;
+import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition;
+import org.springframework.web.servlet.mvc.condition.RequestMethodsRequestCondition;
+import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+import springfox.documentation.annotations.ApiIgnore;
 
-import java.lang.reflect.Method;
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,50 +60,64 @@ public class AnnotationScan implements ApplicationListener<ApplicationReadyEvent
         Environment env = applicationContext.getEnvironment();
         String serviceId = env.getProperty("spring.application.name", "application");
         log.info("ApplicationReadyEvent:{}", serviceId);
-        List<Map<String, Object>> list = Lists.newArrayList();
-        Map<String, Object> beans = applicationContext.getBeansWithAnnotation(RestController.class);
-        //遍历Bean
-        Set<Map.Entry<String, Object>> entries = beans.entrySet();
-        Iterator<Map.Entry<String, Object>> iterator = entries.iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<String, Object> map = iterator.next();
-            Class<?> aClass = map.getValue().getClass();
-            String prefix = "";
-            if (aClass.isAnnotationPresent(RequestMapping.class)) {
-                prefix = aClass.getAnnotation(RequestMapping.class).value()[0];
+        RequestMappingHandlerMapping mapping = applicationContext.getBean(RequestMappingHandlerMapping.class);
+        // 获取url与类和方法的对应信息
+        Map<RequestMappingInfo, HandlerMethod> map = mapping.getHandlerMethods();
+        List<Map<String, String>> list = new ArrayList<Map<String, String>>();
+        for (Map.Entry<RequestMappingInfo, HandlerMethod> m : map.entrySet()) {
+            RequestMappingInfo info = m.getKey();
+            HandlerMethod method = m.getValue();
+            if (method.getMethod().getDeclaringClass().getAnnotation(RestController.class) == null) {
+                // 只扫描RestController
+                continue;
             }
-            Method[] methods = aClass.getMethods();
-            for (Method m : methods) {
-                String path = getPath(m);
-                if (StringUtils.isBlank(path)) {
-                    continue;
-                }
-                //api 资源
-                String code = m.getName();
-                String name = "";
-                String desc = "";
-                if (m.isAnnotationPresent(ApiOperation.class)) {
-                    ApiOperation operation = m.getAnnotation(ApiOperation.class);
-                    name = operation.value();
-                    desc = operation.notes();
+            if (method.getMethodAnnotation(ApiIgnore.class) != null) {
+                // 忽略的接口不扫描
+                continue;
+            }
+            Set<MediaType> mediaTypeSet = info.getProducesCondition().getProducibleMediaTypes();
+            for (MethodParameter params : method.getMethodParameters()) {
+                if (params.hasParameterAnnotation(RequestBody.class)) {
+                    mediaTypeSet.add(MediaType.APPLICATION_JSON_UTF8);
+                    break;
                 }
 
-                if (StringUtils.isBlank(name)) {
-                    name = code;
-                }
-
-                if (StringUtils.isBlank(desc)) {
-                    desc = name;
-                }
-                path = prefix + path;
-                Map<String, Object> api = Maps.newHashMap();
-                api.put("apiCode", code);
-                api.put("apiName", name);
-                api.put("serviceId", serviceId);
-                api.put("path", path);
-                api.put("apiDesc", desc);
-                list.add(api);
             }
+            String mediaTypes = getMediaTypes(mediaTypeSet);
+            // 请求类型
+            RequestMethodsRequestCondition methodsCondition = info.getMethodsCondition();
+            String methods = getMethods(methodsCondition.getMethods());
+            // 请求路径
+            PatternsRequestCondition p = info.getPatternsCondition();
+            String urls = getUrls(p.getPatterns());
+            Map<String, String> api = Maps.newHashMap();
+            // 类名
+            String className = method.getMethod().getDeclaringClass().getName();
+            // 方法名
+            String methodName = method.getMethod().getName();
+            String fullName = className + "." + methodName;
+            // md5码
+            String md5 = EncryptUtils.md5Hex(fullName);
+            String name = "";
+            String desc = "";
+
+            ApiOperation apiOperation = method.getMethodAnnotation(ApiOperation.class);
+            if (apiOperation != null) {
+                name = apiOperation.value();
+                desc = apiOperation.notes();
+            }
+            name = StringUtils.isBlank(name) ? fullName : name;
+            api.put("apiName", name);
+            api.put("apiCode", md5);
+            api.put("apiDesc", desc);
+            api.put("path", urls);
+            api.put("className", className);
+            api.put("methodName", methodName);
+            api.put("md5", md5);
+            api.put("requestMethod", methods);
+            api.put("serviceId", serviceId);
+            api.put("contentType", mediaTypes);
+            list.add(api);
         }
         if (amqpTemplate != null) {
             // 发送mq扫描消息
@@ -102,19 +125,39 @@ public class AnnotationScan implements ApplicationListener<ApplicationReadyEvent
         }
     }
 
-    private String getPath(Method method) {
-        StringBuilder path = new StringBuilder();
-        if (method.isAnnotationPresent(GetMapping.class)) {
-            path.append(method.getAnnotation(GetMapping.class).value()[0]);
-        } else if (method.isAnnotationPresent(PostMapping.class)) {
-            path.append(method.getAnnotation(PostMapping.class).value()[0]);
-        } else if (method.isAnnotationPresent(RequestMapping.class)) {
-            path.append(method.getAnnotation(RequestMapping.class).value()[0]);
-        } else if (method.isAnnotationPresent(PutMapping.class)) {
-            path.append(method.getAnnotation(PutMapping.class).value()[0]);
-        } else if (method.isAnnotationPresent(DeleteMapping.class)) {
-            path.append(method.getAnnotation(DeleteMapping.class).value()[0]);
+
+    private String getMediaTypes(Set<MediaType> mediaTypes) {
+        StringBuilder sbf = new StringBuilder();
+        for (MediaType mediaType : mediaTypes) {
+            sbf.append(mediaType.toString()).append(",");
         }
-        return path.toString();
+        if (mediaTypes.size() > 0) {
+            sbf.deleteCharAt(sbf.length() - 1);
+        }
+        return sbf.toString();
     }
+
+    private String getMethods(Set<RequestMethod> requestMethods) {
+        StringBuilder sbf = new StringBuilder();
+        for (RequestMethod requestMethod : requestMethods) {
+            sbf.append(requestMethod.toString()).append(",");
+        }
+        if (requestMethods.size() > 0) {
+            sbf.deleteCharAt(sbf.length() - 1);
+        }
+        return sbf.toString();
+    }
+
+    private String getUrls(Set<String> urls) {
+        StringBuilder sbf = new StringBuilder();
+        for (String url : urls) {
+            sbf.append(url).append(",");
+        }
+        if (urls.size() > 0) {
+            sbf.deleteCharAt(sbf.length() - 1);
+        }
+        return sbf.toString();
+    }
+
+
 }

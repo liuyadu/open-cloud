@@ -41,7 +41,7 @@ public class JwtUtils {
      * @param secret
      * @return 返回NULL表示验证失败
      */
-    public Map<String, Object> validateAndExtractToken(String token, String secret) {
+    public Map<String, Object> validateAndExtractToken(String token, String secret) throws Exception {
         if (token == null) {
             return null;
         }
@@ -52,7 +52,7 @@ public class JwtUtils {
                     .getBody();
             return body;
         } catch (Exception e) {
-            return null;
+            throw new Exception("token已失效");
         }
     }
 }

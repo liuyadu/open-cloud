@@ -5,15 +5,18 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.lyd.common.constants.ResultEnum;
 import com.google.common.collect.Maps;
+import org.springframework.context.i18n.LocaleContextHolder;
 
 import java.io.Serializable;
+import java.util.Locale;
 import java.util.Map;
 
 /**
  * @author admin
  */
-public class ResultBody<T extends Object> implements Serializable {
+public class ResultBody<T> implements Serializable {
     private static final long serialVersionUID = -6190689122701100762L;
+
     /**
      * 消息码
      */
@@ -27,6 +30,9 @@ public class ResultBody<T extends Object> implements Serializable {
      */
     private String message;
 
+    /**
+     * 请求路径
+     */
     private String path;
 
     /**
@@ -143,8 +149,9 @@ public class ResultBody<T extends Object> implements Serializable {
         return this.error = (this.code == 0 ? "" : ResultEnum.getResultEnum(this.code).getMessage());
     }
 
-    public void setError(String error) {
+    public ResultBody setError(String error) {
         this.error = error;
+        return this;
     }
 
     public String getPath() {

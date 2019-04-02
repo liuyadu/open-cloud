@@ -5,13 +5,13 @@
     <parent>
         <artifactId>opencloud-gateway</artifactId>
         <groupId>com.github.lyd</groupId>
-        <version>0.2.0</version>
+        <version>1.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>opencloud-gateway-provider</artifactId>
-    <version>0.2.0</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
-    <description>统一网关服务</description>
+    <description>API网关服务</description>
     <dependencies>
         <dependency>
             <artifactId>opencloud-common-starter</artifactId>
@@ -47,6 +47,11 @@
             <artifactId>spring-cloud-zuul-ratelimit</artifactId>
             <version>LATEST</version>
         </dependency>
+        <dependency>
+            <groupId>org.lionsoul</groupId>
+            <artifactId>ip2region</artifactId>
+            <version>1.7.2</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -62,6 +67,15 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <configuration>
+                    <nonFilteredFileExtensions>
+                        <nonFilteredFileExtension>db</nonFilteredFileExtension>
+                    </nonFilteredFileExtensions>
+                </configuration>
             </plugin>
         </plugins>
     </build>

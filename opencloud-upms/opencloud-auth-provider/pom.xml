@@ -5,10 +5,11 @@
     <parent>
         <artifactId>opencloud-upms</artifactId>
         <groupId>com.github.lyd</groupId>
-        <version>0.2.0</version>
+        <version>1.0.0</version>
     </parent>
+    <packaging>jar</packaging>
     <modelVersion>4.0.0</modelVersion>
-    <version>0.2.0</version>
+    <version>1.0.0</version>
     <artifactId>opencloud-auth-provider</artifactId>
     <description>认证授权</description>
     <dependencies>
@@ -25,11 +26,6 @@
             <groupId>net.sourceforge.nekohtml</groupId>
             <artifactId>nekohtml</artifactId>
             <version>1.9.22</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.github.lyd</groupId>

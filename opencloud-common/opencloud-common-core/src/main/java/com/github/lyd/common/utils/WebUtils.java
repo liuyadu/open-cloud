@@ -1,19 +1,21 @@
 package com.github.lyd.common.utils;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.net.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.util.Assert;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.ServletInputStream;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
+import java.io.*;
+import java.net.*;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -158,9 +160,9 @@ public class WebUtils {
      * 设置客户端缓存过期时间 的Header.
      */
     public static void setExpiresHeader(HttpServletResponse response, long expiresSeconds) {
-        // Http 1.0 header, set dto fix expires date.
+        // Http 1.0 header, set model fix expires date.
         response.setDateHeader(HttpHeaders.EXPIRES, System.currentTimeMillis() + expiresSeconds * 1000);
-        // Http 1.1 header, set dto time after now.
+        // Http 1.1 header, set model time after now.
         response.setHeader(HttpHeaders.CACHE_CONTROL, "private, max-age=" + expiresSeconds);
     }
 
@@ -288,37 +290,114 @@ public class WebUtils {
     }
 
     /**
-     * 从request中获得参数Map，并返回可读的Map
+     * 获取请求Body
+     *
+     * @param request
+     * @return
+     */
+    public static String getBodyString(final ServletRequest request) {
+        StringBuilder sb = new StringBuilder();
+        InputStream inputStream = null;
+        BufferedReader reader = null;
+        try {
+            inputStream = cloneInputStream(request.getInputStream());
+            reader = new BufferedReader(new InputStreamReader(inputStream, Charset.forName("UTF-8")));
+            String line = "";
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
+     * 复制输入流
+     *
+     * @param inputStream
+     * @return</br>
+     */
+    public static InputStream cloneInputStream(ServletInputStream inputStream) {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int len;
+        try {
+            while ((len = inputStream.read(buffer)) > -1) {
+                byteArrayOutputStream.write(buffer, 0, len);
+            }
+            byteArrayOutputStream.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        InputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+        return byteArrayInputStream;
+    }
+
+    /**
+     * 从request中获得参数，并返回可读的Map
+     * application/x-www-form-urlencode
+     * application/json
+     * application/json;charset=UTF-8
      *
      * @param request
      * @return
      */
     public static Map<String, String> getParameterMap(HttpServletRequest request) {
-        // 参数Map
-        Map properties = request.getParameterMap();
-        // 返回值Map
+        String contentType = request.getHeader(org.springframework.http.HttpHeaders.CONTENT_TYPE);
         Map<String, String> returnMap = new HashMap();
-        Iterator entries = properties.entrySet().iterator();
-        Entry entry;
-        String name = "";
-        String value = "";
-        while (entries.hasNext()) {
-            entry = (Entry) entries.next();
-            name = (String) entry.getKey();
-            Object valueObj = entry.getValue();
-            if (null == valueObj) {
-                value = "";
-            } else if (valueObj instanceof String[]) {
-                String[] values = (String[]) valueObj;
-                for (int i = 0; i < values.length; i++) {
-                    value = values[i] + ",";
+        if (MediaType.APPLICATION_JSON.equals(contentType) || MediaType.APPLICATION_JSON_UTF8.equals(contentType)) {
+            // json类型参数
+            String body = getBodyString(request);
+            if (StringUtils.isNotBlank(body)) {
+                try {
+                    returnMap = JSONObject.parseObject(body, Map.class);
+                } catch (Exception e) {
+
                 }
-                value = value.substring(0, value.length() - 1);
-            } else {
-                value = valueObj.toString();
             }
-            returnMap.put(name, value);
+        } else {
+            // 普通表单形式
+            Map properties = request.getParameterMap();
+            // 返回值Map
+            Iterator entries = properties.entrySet().iterator();
+            Entry entry;
+            String name = "";
+            String value = "";
+            while (entries.hasNext()) {
+                entry = (Entry) entries.next();
+                name = (String) entry.getKey();
+                Object valueObj = entry.getValue();
+                if (null == valueObj) {
+                    value = "";
+                } else if (valueObj instanceof String[]) {
+                    String[] values = (String[]) valueObj;
+                    for (int i = 0; i < values.length; i++) {
+                        value = values[i] + ",";
+                    }
+                    value = value.substring(0, value.length() - 1);
+                } else {
+                    value = valueObj.toString();
+                }
+                returnMap.put(name, value);
+            }
         }
+        // 参数Map
         return returnMap;
     }
 
@@ -388,7 +467,40 @@ public class WebUtils {
         if (ip == null || ip.length() == 0 || unknown.equalsIgnoreCase(ip)) {
             ip = request.getRemoteAddr();
         }
+        //对于通过多个代理的情况，第一个IP为客户端真实IP,多个IP按照','分割
+        if (ip != null && ip.length() > 0) {
+            String[] ips = ip.split(",");
+            if (ips.length > 0) {
+                ip = ips[0];
+            }
+        }
         return ip;
+    }
+
+    /**
+     * 获取本地Ip4地址
+     *
+     * @return
+     */
+    public static final String getLocalIpAddress() {
+        String ipString = "";
+        try {
+            Enumeration<NetworkInterface> allNetInterfaces = NetworkInterface.getNetworkInterfaces();
+            InetAddress ip = null;
+            while (allNetInterfaces.hasMoreElements()) {
+                NetworkInterface netInterface = (NetworkInterface) allNetInterfaces.nextElement();
+                Enumeration<InetAddress> addresses = netInterface.getInetAddresses();
+                while (addresses.hasMoreElements()) {
+                    ip = (InetAddress) addresses.nextElement();
+                    if (ip != null && ip instanceof Inet4Address && !ip.getHostAddress().equals("127.0.0.1")) {
+                        return ip.getHostAddress();
+                    }
+                }
+            }
+        } catch (Exception e) {
+
+        }
+        return ipString;
     }
 
     /**
@@ -422,7 +534,7 @@ public class WebUtils {
     public static void writeJson(HttpServletResponse response, String string, String type) {
         try {
             // CORS setting
-            response.setHeader("Access-Control-Allow-Origin", "*");
+            response.setHeader("OpenAccess-Control-Allow-Origin", "*");
             response.setContentType(type);
             response.setCharacterEncoding("utf-8");
             response.getWriter().print(string);
@@ -451,8 +563,7 @@ public class WebUtils {
         }
     }
 
-    public static Map<String, String> getHttpHeaders() {
-        HttpServletRequest request = getHttpServletRequest();
+    public static Map<String, String> getHttpHeaders(HttpServletRequest request) {
         Map<String, String> map = new LinkedHashMap<>();
         if (request != null) {
             Enumeration<String> enumeration = request.getHeaderNames();

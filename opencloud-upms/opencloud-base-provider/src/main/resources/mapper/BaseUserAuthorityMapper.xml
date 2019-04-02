@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.lyd.base.provider.mapper.BaseUserAuthorityMapper">
+    <resultMap id="BaseResultMap" type="com.github.lyd.base.client.model.entity.BaseUserAuthority">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <result column="authority_id" jdbcType="BIGINT" property="authorityId"/>
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="expire_time" jdbcType="TIMESTAMP" property="expireTime"/>
+    </resultMap>
+    <resultMap id="BaseUserMenuAuthority" type="com.github.lyd.base.client.model.BaseMenuAuthority"
+               extends="com.github.lyd.base.provider.mapper.BaseResourceMenuMapper.BaseResultMap">
+        <result column="authority_id" jdbcType="BIGINT" property="authorityId"/>
+        <result column="authority" jdbcType="VARCHAR" property="authority"/>
+        <collection property="operationList" column="{menuId=menu_id,userId=user_id}"
+                    select="com.github.lyd.base.provider.mapper.BaseAuthorityMapper.selectOperationAuthority"/>
+    </resultMap>
+
+    <select id="selectUserGrantedAuthority"
+            resultMap="com.github.lyd.base.provider.mapper.BaseAuthorityMapper.OpenGrantedAuthority">
+        SELECT
+            a.authority_id,
+            a.authority,
+            up.expire_time,
+            'user' as owner
+        FROM
+            base_user_authority AS up
+                LEFT JOIN base_authority AS a ON up.authority_id = a.authority_id
+        WHERE
+            up.user_id = #{userId}
+            and  a.status = 1
+    </select>
+
+    <select id="selectUserMenuAuthority"
+            resultMap="BaseUserMenuAuthority">
+         SELECT
+            a.authority_id,
+            a.authority,
+            a.`status`,
+            m.*,
+            ua.user_id,
+            ua.expire_time
+        FROM
+            base_user_authority AS ua
+        INNER JOIN base_authority AS a ON ua.authority_id = a.authority_id
+        INNER JOIN base_resource_menu AS m ON a.menu_id = m.menu_id
+        WHERE
+                ua.user_id = #{userId}
+                and a.status = 1
+    </select>
+</mapper>

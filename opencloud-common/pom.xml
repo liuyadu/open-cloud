@@ -5,16 +5,16 @@
     <parent>
         <artifactId>open-cloud</artifactId>
         <groupId>com.github.lyd</groupId>
-        <version>0.2.0</version>
+        <version>1.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>opencloud-common</artifactId>
-    <version>0.2.0</version>
+    <version>1.0.0</version>
     <packaging>pom</packaging>
     <description>通用核心组件</description>
     <modules>
-        <module>opencloud-common-autoconfigure</module>
-        <module>opencloud-common-starter</module>
         <module>opencloud-common-core</module>
+        <module>opencloud-common-starter</module>
+        <module>opencloud-tenant-starter</module>
     </modules>
 </project>

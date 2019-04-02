@@ -2,8 +2,8 @@ package com.github.lyd.auth.provider.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.lyd.auth.client.constants.AuthConstants;
-import com.github.lyd.auth.client.entity.ThirdPartyAuthClientDetails;
-import com.github.lyd.auth.client.entity.ThirdPartyAuthProperties;
+import com.github.lyd.auth.client.config.SocialOAuth2ClientDetails;
+import com.github.lyd.auth.client.config.SocialOAuth2ClientProperties;
 import com.github.lyd.auth.client.service.ThirdPartyAuthService;
 import com.github.lyd.common.http.OpenRestTemplate;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ public class WechatAuthServiceImpl implements ThirdPartyAuthService {
     @Autowired
     private OpenRestTemplate restTemplate;
     @Autowired
-    private ThirdPartyAuthProperties socialAuthProperties;
+    private SocialOAuth2ClientProperties socialAuthProperties;
     /**
      * 微信 登陆页面的URL
      */
@@ -127,7 +127,7 @@ public class WechatAuthServiceImpl implements ThirdPartyAuthService {
      * @return
      */
     @Override
-    public ThirdPartyAuthClientDetails getClientDetails() {
+    public SocialOAuth2ClientDetails getClientDetails() {
         return socialAuthProperties.getOauth2().get(AuthConstants.LOGIN_WECHAT);
     }
 

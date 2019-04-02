@@ -5,12 +5,12 @@
     <parent>
         <artifactId>open-cloud</artifactId>
         <groupId>com.github.lyd</groupId>
-        <version>0.2.0</version>
+        <version>1.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>opencloud-msg</artifactId>
     <groupId>com.github.lyd</groupId>
-    <version>0.2.0</version>
+    <version>1.0.0</version>
     <packaging>pom</packaging>
     <description>消息服务</description>
     <modules>

@@ -7,6 +7,8 @@ import org.springframework.http.MediaType;
 import org.springframework.util.Assert;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.multipart.MultipartResolver;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletRequest;
@@ -355,6 +357,7 @@ public class WebUtils {
      * application/x-www-form-urlencode
      * application/json
      * application/json;charset=UTF-8
+     * multipart/form-data
      *
      * @param request
      * @return
@@ -362,43 +365,55 @@ public class WebUtils {
     public static Map<String, String> getParameterMap(HttpServletRequest request) {
         String contentType = request.getHeader(org.springframework.http.HttpHeaders.CONTENT_TYPE);
         Map<String, String> returnMap = new HashMap();
-        if (MediaType.APPLICATION_JSON_VALUE.equals(contentType) || MediaType.APPLICATION_JSON_UTF8_VALUE.equals(contentType)) {
-            // json类型参数
+        if (contentType != null && contentType.contains(MediaType.MULTIPART_FORM_DATA_VALUE)) {
+            // form-data表单
+            MultipartResolver multipartResolver = SpringContextHolder.getBean(MultipartResolver.class);
+            MultipartHttpServletRequest multiReq = multipartResolver.resolveMultipart(request);
+            returnMap = conventMap(multiReq.getParameterMap());
+        } else if (MediaType.APPLICATION_JSON_VALUE.equals(contentType) || MediaType.APPLICATION_JSON_UTF8_VALUE.equals(contentType)) {
+            // json表单
             String body = getBodyString(request);
             if (StringUtils.isNotBlank(body)) {
                 try {
                     returnMap = JSONObject.parseObject(body, Map.class);
                 } catch (Exception e) {
-
+                    e.printStackTrace();
                 }
             }
-        } else if(MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(contentType)) {
-            // 普通表单形式
-            Map properties = request.getParameterMap();
-            // 返回值Map
-            Iterator entries = properties.entrySet().iterator();
-            Entry entry;
-            String name = "";
-            String value = "";
-            while (entries.hasNext()) {
-                entry = (Entry) entries.next();
-                name = (String) entry.getKey();
-                Object valueObj = entry.getValue();
-                if (null == valueObj) {
-                    value = "";
-                } else if (valueObj instanceof String[]) {
-                    String[] values = (String[]) valueObj;
+        } else {
+            // 普通表单
+            returnMap = conventMap(request.getParameterMap());
+        }
+        // 参数Map
+        return returnMap;
+    }
+
+    private static Map conventMap(Map map) {
+        Map<String, String> returnMap = new HashMap();
+        // 返回值Map
+        Iterator entries = map.entrySet().iterator();
+        Entry entry;
+        String name = "";
+        String value = "";
+        while (entries.hasNext()) {
+            entry = (Entry) entries.next();
+            name = (String) entry.getKey();
+            Object valueObj = entry.getValue();
+            if (null == valueObj) {
+                value = "";
+            } else if (valueObj instanceof String[]) {
+                String[] values = (String[]) valueObj;
+                if (values != null && values.length > 0) {
                     for (int i = 0; i < values.length; i++) {
                         value = values[i] + ",";
                     }
                     value = value.substring(0, value.length() - 1);
-                } else {
-                    value = valueObj.toString();
                 }
-                returnMap.put(name, value);
+            } else {
+                value = valueObj.toString();
             }
+            returnMap.put(name, value);
         }
-        // 参数Map
         return returnMap;
     }
 

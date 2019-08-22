@@ -76,9 +76,7 @@ public class RedisCacheAutoConfiguration {
         // 设置缓存的默认过期时间，也是使用Duration设置
         redisCacheConfiguration = redisCacheConfiguration
                 // 设置缓存有效期一小时
-                .entryTtl(Duration.ofHours(1))
-                // 不缓存空值
-                .disableCachingNullValues();
+                .entryTtl(Duration.ofHours(1));
         return RedisCacheManager
                 .builder(RedisCacheWriter.nonLockingRedisCacheWriter(redisConnectionFactory))
                 .cacheDefaults(redisCacheConfiguration).build();

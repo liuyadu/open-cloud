@@ -52,7 +52,7 @@ public class PreSignatureFilter extends OncePerRequestFilter {
                     // 获取客户端信息
                     ResultBody<BaseApp> result = baseAppServiceClient.getApp(appId);
                     BaseApp app = result.getData();
-                    if (app == null) {
+                    if (app == null || app.getAppId()==null) {
                         throw new OpenSignatureException("appId无效");
                     }
                     // 强制覆盖请求参数clientId

@@ -35,7 +35,7 @@ public class PreSignatureFilter implements WebFilter {
     private static final AntPathMatcher pathMatch = new AntPathMatcher();
 
 
-    public PreSignatureFilter(BaseAppServiceClient baseAppServiceClient, ApiProperties apiGatewayProperties,JsonSignatureDeniedHandler signatureDeniedHandler) {
+    public PreSignatureFilter(BaseAppServiceClient baseAppServiceClient, ApiProperties apiGatewayProperties, JsonSignatureDeniedHandler signatureDeniedHandler) {
         this.baseAppServiceClient = baseAppServiceClient;
         this.apiGatewayProperties = apiGatewayProperties;
         this.signatureDeniedHandler = signatureDeniedHandler;
@@ -50,7 +50,7 @@ public class PreSignatureFilter implements WebFilter {
                 Map params = Maps.newHashMap();
                 GatewayContext gatewayContext = exchange.getAttribute(GatewayContext.CACHE_GATEWAY_CONTEXT);
                 // 排除文件上传
-                if(gatewayContext!=null){
+                if (gatewayContext != null) {
                     params = gatewayContext.getAllRequestData().toSingleValueMap();
                 }
                 // 验证请求参数
@@ -61,7 +61,7 @@ public class PreSignatureFilter implements WebFilter {
                     // 获取客户端信息
                     ResultBody<BaseApp> result = baseAppServiceClient.getApp(appId);
                     BaseApp app = result.getData();
-                    if (app == null) {
+                    if (app == null || app.getAppId() == null) {
                         return signatureDeniedHandler.handle(exchange, new OpenSignatureException("appId无效"));
                     }
                     // 强制覆盖请求参数clientId
@@ -88,7 +88,7 @@ public class PreSignatureFilter implements WebFilter {
     }
 
     protected boolean notSign(String requestPath) {
-        if(apiGatewayProperties.getSignIgnores()==null){
+        if (apiGatewayProperties.getSignIgnores() == null) {
             return false;
         }
         for (String path : apiGatewayProperties.getSignIgnores()) {

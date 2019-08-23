@@ -4,7 +4,7 @@ spring:
   application:
     name: ${artifactId}
   cloud:
-        #手动配置Bus id,
+    #手动配置Bus id,
     bus:
       id: ${spring.application.name}:${server.port}
     nacos:
@@ -33,24 +33,24 @@ spring:
     suffix: .html
 
 hystrix:
-    command:
-        default:
-            execution:
-                isolation:
-                    thread:
-                        # hystrix 超时时间最好大于Ribbon的超时时间
-                        timeoutInMilliseconds: 30000
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            # hystrix 超时时间最好大于Ribbon的超时时间
+            timeoutInMilliseconds: 30000
 ribbon:
-    #请求连接的超时时间
-    ConnectTimeout: 2000
-    #对当前实例的重试次数
-    MaxAutoRetries: 1
-    #切换实例的重试次数
-    MaxAutoRetriesNextServer: 1
-    #对所有操作请求都进行重试
-    OkToRetryOnAllOperations: true
-    #请求处理的超时时间
-    ReadTimeout: 5000
+  #请求连接的超时时间
+  ConnectTimeout: 2000
+  #对当前实例的重试次数
+  MaxAutoRetries: 1
+  #切换实例的重试次数
+  MaxAutoRetriesNextServer: 1
+  #对所有操作请求都进行重试
+  OkToRetryOnAllOperations: true
+  #请求处理的超时时间
+  ReadTimeout: 5000
 
 zuul:
   #是否开启路由重试
@@ -81,9 +81,9 @@ management:
 
 opencloud:
   swagger2:
-      enabled: true
-      description: 平台基础服务器
-      title: 平台基础服务器
+    enabled: true
+    description: 平台基础服务器
+    title: 平台基础服务器
   #网关配置
   api:
     #动态权限控制
@@ -106,11 +106,10 @@ opencloud:
       - /*/current/user/**
     # 签名忽略
     sign-ignores:
-      - /favicon.ico
       - /**/login/**
       - /**/logout/**
 #mybatis plus 设置
 mybatis-plus:
- #实体扫描，多个package用逗号或者分号分隔
+  #实体扫描，多个package用逗号或者分号分隔
   typeAliasesPackage: com.opencloud.gateway.zuul.server.**.entity
   mapper-locations: classpath:mapper/*.xml

@@ -1,48 +1,48 @@
 server:
-    port: 8888
+  port: 8888
 spring:
-    mvc:
-      favicon:
-        enabled: false
-    application:
-        name: ${artifactId}
-    cloud:
-        #手动配置Bus id,
-        bus:
-            id: ${spring.application.name}:${server.port}
-        gateway:
-            discovery:
-                locator:
-                  #表明gateway开启服务注册和发现的功能，并且spring cloud gateway自动根据服务发现为每一个服务创建了一个router，# 这个router将以服务名开头的请求路径转发到对应的服务
-                  enabled: false
-                  #将请求路径上的服务名配置为小写（因为服务注册的时候，向注册中心注册时将服务名转成大写的了,比如以/service-hi/*的请求路径被路由转发到服务名为service-hi的服务上
-                  lowerCaseServiceId: true
-        nacos:
-            config:
-                namespace: ${config.namespace}
-                refreshable-dataids: common.properties
-                server-addr: ${config.server-addr}
-                shared-dataids: common.properties,db.properties,redis.properties,rabbitmq.properties
-            discovery:
-                namespace: ${config.namespace}
-                server-addr: ${discovery.server-addr}
-    main:
-        allow-bean-definition-overriding: true
-    profiles:
-        active: ${profile.name}
-    thymeleaf:
-        cache: false
-        encoding: UTF-8
-        mode: LEGACYHTML5
-        prefix: classpath:/templates/
-        suffix: .html
+  mvc:
+    favicon:
+      enabled: false
+  application:
+    name: ${artifactId}
+  cloud:
+    #手动配置Bus id,
+    bus:
+      id: ${spring.application.name}:${server.port}
+    gateway:
+      discovery:
+        locator:
+          #表明gateway开启服务注册和发现的功能，并且spring cloud gateway自动根据服务发现为每一个服务创建了一个router，# 这个router将以服务名开头的请求路径转发到对应的服务
+          enabled: false
+          #将请求路径上的服务名配置为小写（因为服务注册的时候，向注册中心注册时将服务名转成大写的了,比如以/service-hi/*的请求路径被路由转发到服务名为service-hi的服务上
+          lowerCaseServiceId: true
+    nacos:
+      config:
+        namespace: ${config.namespace}
+        refreshable-dataids: common.properties
+        server-addr: ${config.server-addr}
+        shared-dataids: common.properties,db.properties,redis.properties,rabbitmq.properties
+      discovery:
+        namespace: ${config.namespace}
+        server-addr: ${discovery.server-addr}
+  main:
+    allow-bean-definition-overriding: true
+  profiles:
+    active: ${profile.name}
+  thymeleaf:
+    cache: false
+    encoding: UTF-8
+    mode: LEGACYHTML5
+    prefix: classpath:/templates/
+    suffix: .html
 
 filters:
-# 熔断降级配置
-- name: Hystrix
-  args:
-    name : default
-    fallbackUri: 'forward:/fallback'
+  # 熔断降级配置
+  - name: Hystrix
+    args:
+      name: default
+      fallbackUri: 'forward:/fallback'
 
 # hystrix 信号量隔离，3秒后自动超时
 hystrix:
@@ -63,34 +63,33 @@ management:
         include: health,info,open
 
 opencloud:
-# 开放api
+  # 开放api
   api:
-      # 参数签名验证
-      check-sign: false
-      # 访问权限控制
-      access-control: true
-      # swagger调试,生产环境设为false
-      api-debug: true
-      # 始终放行
-      permit-all:
-        - /*/login/**
-        - /*/logout/**
-        - /*/oauth/**
-        - /actuator/health
-        - /actuator/info
-      # 忽略权限鉴定
-      authority-ignores:
-        - /*/authority/granted/me
-        - /*/authority/granted/me/menu
-        - /*/current/user/**
-      # 签名忽略
-      sign-ignores:
-        - /favicon.ico
-        - /**/login/**
-        - /**/logout/**
+    # 参数签名验证
+    check-sign: false
+    # 访问权限控制
+    access-control: true
+    # swagger调试,生产环境设为false
+    api-debug: true
+    # 始终放行
+    permit-all:
+      - /*/login/**
+      - /*/logout/**
+      - /*/oauth/**
+      - /actuator/health
+      - /actuator/info
+    # 忽略权限鉴定
+    authority-ignores:
+      - /*/authority/granted/me
+      - /*/authority/granted/me/menu
+      - /*/current/user/**
+    # 签名忽略
+    sign-ignores:
+      - /**/login/**
+      - /**/logout/**
 
 #mybatis plus 设置
 mybatis-plus:
- #实体扫描，多个package用逗号或者分号分隔
+  #实体扫描，多个package用逗号或者分号分隔
   typeAliasesPackage: com.opencloud.gateway.spring.server.**.entity
   mapper-locations: classpath:mapper/*.xml

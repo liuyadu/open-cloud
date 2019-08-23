@@ -1,5 +1,6 @@
 package com.opencloud.gateway.zuul.server.filter;
 
+import cn.hutool.core.collection.ConcurrentHashSet;
 import com.opencloud.base.client.model.entity.BaseApp;
 import com.opencloud.common.constants.CommonConstants;
 import com.opencloud.common.exception.OpenSignatureException;
@@ -18,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 数字验签前置过滤器
@@ -31,11 +33,28 @@ public class PreSignatureFilter extends OncePerRequestFilter {
     private BaseAppServiceClient baseAppServiceClient;
     private ApiProperties apiGatewayProperties;
     private static final AntPathMatcher pathMatch = new AntPathMatcher();
+    private Set<String> signIgnores = new ConcurrentHashSet<>();
 
     public PreSignatureFilter(BaseAppServiceClient baseAppServiceClient, ApiProperties apiGatewayProperties,JsonSignatureDeniedHandler jsonSignatureDeniedHandler) {
         this.baseAppServiceClient = baseAppServiceClient;
         this.apiGatewayProperties = apiGatewayProperties;
         this.signatureDeniedHandler =  jsonSignatureDeniedHandler;
+        // 默认忽略签名
+        signIgnores.add("/");
+        signIgnores.add("/error");
+        signIgnores.add("/favicon.ico");
+        if (apiGatewayProperties != null) {
+            if (apiGatewayProperties.getSignIgnores() != null) {
+                signIgnores.addAll(apiGatewayProperties.getSignIgnores());
+            }
+            if (apiGatewayProperties.getApiDebug()) {
+                signIgnores.add("/**/v2/api-docs/**");
+                signIgnores.add("/**/swagger-resources/**");
+                signIgnores.add("/webjars/**");
+                signIgnores.add("/doc.html");
+                signIgnores.add("/swagger-ui.html");
+            }
+        }
     }
 
     @Override
@@ -74,7 +93,7 @@ public class PreSignatureFilter extends OncePerRequestFilter {
         if(apiGatewayProperties.getSignIgnores()==null){
             return false;
         }
-        for (String path : apiGatewayProperties.getSignIgnores()) {
+        for (String path : signIgnores) {
             if (pathMatch.match(path, requestPath)) {
                 return true;
             }

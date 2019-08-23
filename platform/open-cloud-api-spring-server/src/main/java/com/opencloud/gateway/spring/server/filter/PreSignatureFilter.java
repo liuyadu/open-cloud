@@ -1,5 +1,6 @@
 package com.opencloud.gateway.spring.server.filter;
 
+import cn.hutool.core.collection.ConcurrentHashSet;
 import com.google.common.collect.Maps;
 import com.opencloud.base.client.model.entity.BaseApp;
 import com.opencloud.common.constants.CommonConstants;
@@ -19,6 +20,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -33,12 +35,28 @@ public class PreSignatureFilter implements WebFilter {
     private BaseAppServiceClient baseAppServiceClient;
     private ApiProperties apiGatewayProperties;
     private static final AntPathMatcher pathMatch = new AntPathMatcher();
-
+    private Set<String> signIgnores = new ConcurrentHashSet<>();
 
     public PreSignatureFilter(BaseAppServiceClient baseAppServiceClient, ApiProperties apiGatewayProperties, JsonSignatureDeniedHandler signatureDeniedHandler) {
         this.baseAppServiceClient = baseAppServiceClient;
         this.apiGatewayProperties = apiGatewayProperties;
         this.signatureDeniedHandler = signatureDeniedHandler;
+        // 默认忽略签名
+        signIgnores.add("/");
+        signIgnores.add("/error");
+        signIgnores.add("/favicon.ico");
+        if (apiGatewayProperties != null) {
+            if (apiGatewayProperties.getSignIgnores() != null) {
+                signIgnores.addAll(apiGatewayProperties.getSignIgnores());
+            }
+            if (apiGatewayProperties.getApiDebug()) {
+                signIgnores.add("/**/v2/api-docs/**");
+                signIgnores.add("/**/swagger-resources/**");
+                signIgnores.add("/webjars/**");
+                signIgnores.add("/doc.html");
+                signIgnores.add("/swagger-ui.html");
+            }
+        }
     }
 
     @Override
@@ -91,7 +109,7 @@ public class PreSignatureFilter implements WebFilter {
         if (apiGatewayProperties.getSignIgnores() == null) {
             return false;
         }
-        for (String path : apiGatewayProperties.getSignIgnores()) {
+        for (String path : signIgnores) {
             if (pathMatch.match(path, requestPath)) {
                 return true;
             }

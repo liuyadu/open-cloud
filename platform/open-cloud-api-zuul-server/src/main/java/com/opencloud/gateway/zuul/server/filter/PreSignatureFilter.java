@@ -88,7 +88,7 @@ public class PreSignatureFilter extends OncePerRequestFilter {
                 return;
             }
         }
-        filterChain.doFilter(request, response);
+        filterChain.doFilter(requestWrapper, response);
     }
 
     protected boolean notSign(String requestPath) {

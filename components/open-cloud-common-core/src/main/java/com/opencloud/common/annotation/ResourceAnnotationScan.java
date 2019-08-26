@@ -44,11 +44,11 @@ import java.util.concurrent.Executors;
  * @author liuyadu
  */
 @Slf4j
-public class AnnotationScan implements ApplicationListener<ApplicationReadyEvent> {
+public class ResourceAnnotationScan implements ApplicationListener<ApplicationReadyEvent> {
     private AmqpTemplate amqpTemplate;
     private static final AntPathMatcher pathMatch = new AntPathMatcher();
 
-    public AnnotationScan(AmqpTemplate amqpTemplate) {
+    public ResourceAnnotationScan(AmqpTemplate amqpTemplate) {
         this.amqpTemplate = amqpTemplate;
     }
 

@@ -30,8 +30,8 @@ public class OpenTokenEnhancer extends TokenEnhancerChain {
             if (authentication.getPrincipal() != null && authentication.getPrincipal() instanceof OpenUserDetails) {
                 // 设置额外用户信息
                 OpenUserDetails baseUser = ((OpenUserDetails) authentication.getPrincipal());
-                additionalInfo.put(SecurityConstants.OPEN_ID, baseUser.getUserId());
-                additionalInfo.put(SecurityConstants.DOMAIN, baseUser.getDomain());
+                additionalInfo.put(OpenSecurityConstants.OPEN_ID, baseUser.getUserId());
+                additionalInfo.put(OpenSecurityConstants.DOMAIN, baseUser.getDomain());
             }
         }
         defaultOAuth2AccessToken.setAdditionalInformation(additionalInfo);

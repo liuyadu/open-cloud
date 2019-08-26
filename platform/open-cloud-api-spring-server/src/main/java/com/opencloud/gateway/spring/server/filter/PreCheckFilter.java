@@ -23,10 +23,10 @@ public class PreCheckFilter implements WebFilter {
 
     private JsonAccessDeniedHandler accessDeniedHandler;
 
-    private AccessAuthorizationManager apiAccessManager;
+    private AccessManager accessManager;
 
-    public PreCheckFilter(AccessAuthorizationManager apiAccessManager, JsonAccessDeniedHandler accessDeniedHandler) {
-        this.apiAccessManager = apiAccessManager;
+    public PreCheckFilter(AccessManager accessManager, JsonAccessDeniedHandler accessDeniedHandler) {
+        this.accessManager = accessManager;
         this.accessDeniedHandler = accessDeniedHandler;
     }
 
@@ -37,7 +37,7 @@ public class PreCheckFilter implements WebFilter {
         String requestPath = request.getURI().getPath();
         String remoteIpAddress = ReactiveWebUtils.getRemoteAddress(exchange);
         String origin = request.getHeaders().getOrigin();
-        AuthorityResource resource = apiAccessManager.getResource(requestPath);
+        AuthorityResource resource = accessManager.getResource(requestPath);
         if (resource != null) {
             if ("0".equals(resource.getIsOpen().toString())) {
                 // 未公开
@@ -52,14 +52,14 @@ public class PreCheckFilter implements WebFilter {
             }
         }
         // 1.ip黑名单检测
-        boolean deny = apiAccessManager.matchIpOrOriginBlacklist(requestPath, remoteIpAddress,origin);
+        boolean deny = accessManager.matchIpOrOriginBlacklist(requestPath, remoteIpAddress,origin);
         if (deny) {
             // 拒绝
             return accessDeniedHandler.handle(exchange, new AccessDeniedException(ErrorCode.ACCESS_DENIED_BLACK_LIMITED.getMessage()));
         }
 
         // 3.ip白名单检测
-        Boolean[] matchIpWhiteListResult = apiAccessManager.matchIpOrOriginWhiteList(requestPath, remoteIpAddress,origin);
+        Boolean[] matchIpWhiteListResult = accessManager.matchIpOrOriginWhiteList(requestPath, remoteIpAddress,origin);
         boolean hasWhiteList = matchIpWhiteListResult[0];
         boolean allow = matchIpWhiteListResult[1];
         if (hasWhiteList) {

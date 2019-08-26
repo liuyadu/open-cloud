@@ -3,7 +3,7 @@ package com.opencloud.common.security;
 /**
  * @author liuyadu
  */
-public class SecurityConstants {
+public class OpenSecurityConstants {
     public final static String OPEN_ID = "openid";
     public final static String DOMAIN = "domain";
     public final static String AUTHORITY_PREFIX_MENU = "MENU_";

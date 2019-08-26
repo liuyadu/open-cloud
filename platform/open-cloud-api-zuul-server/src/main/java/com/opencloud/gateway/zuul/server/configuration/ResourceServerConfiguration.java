@@ -4,7 +4,7 @@ import com.opencloud.common.security.OpenHelper;
 import com.opencloud.gateway.zuul.server.exception.JsonAccessDeniedHandler;
 import com.opencloud.gateway.zuul.server.exception.JsonAuthenticationEntryPoint;
 import com.opencloud.gateway.zuul.server.exception.JsonSignatureDeniedHandler;
-import com.opencloud.gateway.zuul.server.filter.AccessAuthorizationManager;
+import com.opencloud.gateway.zuul.server.filter.AccessManager;
 import com.opencloud.gateway.zuul.server.filter.PreCheckFilter;
 import com.opencloud.gateway.zuul.server.filter.PreRequestFilter;
 import com.opencloud.gateway.zuul.server.filter.PreSignatureFilter;
@@ -44,7 +44,7 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
     @Autowired
     private AccessLogService accessLogService;
     @Autowired
-    private AccessAuthorizationManager accessAuthorizationManager;
+    private AccessManager accessManager;
 
     private OAuth2WebSecurityExpressionHandler expressionHandler;
 
@@ -70,7 +70,7 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
                 .antMatchers("/").permitAll()
                 .anyRequest().authenticated()
                 // 动态权限验证
-                .anyRequest().access("@accessAuthorizationManager.check(request,authentication)")
+                .anyRequest().access("@accessManager.check(request,authentication)")
                 .and()
                 //认证鉴权错误处理,为了统一异常处理。每个资源服务器都应该加上。
                 .exceptionHandling()
@@ -83,7 +83,7 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
         // 签名验证过滤器
         http.addFilterAfter(new PreSignatureFilter(baseAppServiceClient, apiProperties,new JsonSignatureDeniedHandler(accessLogService)), AbstractPreAuthenticatedProcessingFilter.class);
         // 访问验证前置过滤器
-        http.addFilterAfter(new PreCheckFilter(accessAuthorizationManager, new JsonAccessDeniedHandler(accessLogService)), AbstractPreAuthenticatedProcessingFilter.class);
+        http.addFilterAfter(new PreCheckFilter(accessManager, new JsonAccessDeniedHandler(accessLogService)), AbstractPreAuthenticatedProcessingFilter.class);
     }
 }
 

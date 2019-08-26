@@ -6,7 +6,9 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import com.opencloud.common.filter.XssStringJsonDeserializer;
 import com.opencloud.common.filter.XssStringJsonSerializer;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
@@ -26,6 +28,7 @@ import static com.opencloud.autoconfigure.JacksonAutoConfiguration.SerializerFea
  * @date: 2019/5/20 14:56
  * @description:
  */
+@Slf4j
 public class JacksonAutoConfiguration {
 
     public enum SerializerFeature {
@@ -57,7 +60,7 @@ public class JacksonAutoConfiguration {
             nullNumberJsonSerializer = (config & WriteNullNumberAsZero.mask) != 0 ? new NullNumberSerializer() : null;
             nullListJsonSerializer = (config & WriteNullListAsEmpty.mask) != 0 ? new NullListJsonSerializer() : null;
             nullStringJsonSerializer = (config & WriteNullStringAsEmpty.mask) != 0 ? new NullStringSerializer() : null;
-            nullMapJsonSerializer =(config & WriteNullMapAsEmpty.mask) != 0 ? new NullMapSerializer() : null;
+            nullMapJsonSerializer = (config & WriteNullMapAsEmpty.mask) != 0 ? new NullMapSerializer() : null;
         }
 
         @Override
@@ -73,7 +76,7 @@ public class JacksonAutoConfiguration {
                     writer.assignNullSerializer(nullBooleanJsonSerializer);
                 } else if (String.class.equals(rawClass) || Date.class.equals(rawClass)) {
                     writer.assignNullSerializer(nullStringJsonSerializer);
-                }else if(!Date.class.equals(rawClass)){
+                } else if (!Date.class.equals(rawClass)) {
                     writer.assignNullSerializer(nullMapJsonSerializer);
                 }
             }
@@ -133,15 +136,13 @@ public class JacksonAutoConfiguration {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         /**
          * 序列换成json时,将所有的long变成string
-         * js中long过长精度丢失
+         * 因为js中得数字类型不能包含所有的java long值
          */
         SimpleModule simpleModule = new SimpleModule();
         simpleModule.addSerializer(Long.class, ToStringSerializer.instance);
         simpleModule.addSerializer(Long.TYPE, ToStringSerializer.instance);
-        //注册xss解析器
-        SimpleModule xssModule = new SimpleModule("XssStringJsonSerializer");
-        xssModule.addSerializer(new XssStringJsonSerializer());
-        objectMapper.registerModule(xssModule);
+        simpleModule.addSerializer(String.class, new XssStringJsonSerializer());
+        simpleModule.addDeserializer(String.class, new XssStringJsonDeserializer());
         objectMapper.registerModule(simpleModule);
         // 兼容fastJson 的一些空值处理
         SerializerFeature[] features = new SerializerFeature[]{
@@ -152,6 +153,7 @@ public class JacksonAutoConfiguration {
                 WriteNullMapAsEmpty
         };
         objectMapper.setSerializerFactory(objectMapper.getSerializerFactory().withSerializerModifier(new FastJsonSerializerFeatureCompatibleForJackson(features)));
+        log.info("ObjectMapper [{}]", objectMapper);
         return objectMapper;
     }
 

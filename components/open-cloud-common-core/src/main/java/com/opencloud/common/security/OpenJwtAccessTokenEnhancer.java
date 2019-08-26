@@ -30,8 +30,8 @@ public class OpenJwtAccessTokenEnhancer extends JwtAccessTokenConverter {
             // 设置额外用户信息
             OpenUserDetails baseUser = ((OpenUserDetails) authentication.getPrincipal());
             final Map<String, Object> additionalInfo = new HashMap<>(8);
-            additionalInfo.put(SecurityConstants.OPEN_ID, baseUser.getUserId());
-            additionalInfo.put(SecurityConstants.DOMAIN, baseUser.getDomain());
+            additionalInfo.put(OpenSecurityConstants.OPEN_ID, baseUser.getUserId());
+            additionalInfo.put(OpenSecurityConstants.DOMAIN, baseUser.getDomain());
             defaultOAuth2AccessToken.setAdditionalInformation(additionalInfo);
         }
 

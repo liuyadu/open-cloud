@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
  * @author liuyadu
  */
 @Slf4j
-public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRouteEvent> {
+public class ResourceLocator implements ApplicationListener<RemoteRefreshRouteEvent> {
     /**
      * 单位时间
      */
@@ -83,7 +83,7 @@ public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRout
     private StringToMatchTypeConverter converter;
 
 
-    public ApiResourceLocator(JdbcRouteLocator zuulRoutesLocator, RateLimitProperties rateLimitProperties, BaseAuthorityServiceClient baseAuthorityServiceClient, GatewayServiceClient gatewayServiceClient) {
+    public ResourceLocator(JdbcRouteLocator zuulRoutesLocator, RateLimitProperties rateLimitProperties, BaseAuthorityServiceClient baseAuthorityServiceClient, GatewayServiceClient gatewayServiceClient) {
         this.ipBlacks = new CopyOnWriteArrayList();
         this.ipWhites = new CopyOnWriteArrayList();
         this.authorityResources = new CopyOnWriteArrayList();

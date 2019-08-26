@@ -15,7 +15,8 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * Feign OAuth2 request interceptor.
- * @author  liuyadu
+ *
+ * @author liuyadu
  */
 @Slf4j
 @Configuration
@@ -24,16 +25,18 @@ public class FeignAutoConfiguration {
     public static int readTimeOutMillis = 12000;
 
     @Bean
-    public Encoder feignFormEncoder (ObjectFactory<HttpMessageConverters> messageConverters) {
-        return new FeignSpringFormEncoder(new SpringEncoder(messageConverters));
+    public Encoder feignFormEncoder(ObjectFactory<HttpMessageConverters> messageConverters) {
+        Encoder encoder = new FeignSpringFormEncoder(new SpringEncoder(messageConverters));
+        log.info("FeignSpringFormEncoder [{}]", encoder);
+        return encoder;
     }
 
     @Bean
     @ConditionalOnMissingBean(FeignRequestInterceptor.class)
     public RequestInterceptor feignRequestInterceptor() {
-       FeignRequestInterceptor interceptor = new FeignRequestInterceptor();
-        log.info("bean [{}]", interceptor);
-        return  interceptor;
+        FeignRequestInterceptor interceptor = new FeignRequestInterceptor();
+        log.info("FeignRequestInterceptor [{}]", interceptor);
+        return interceptor;
     }
 
     @Bean

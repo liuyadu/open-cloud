@@ -3,24 +3,25 @@ package com.opencloud.common.filter;
 
 import com.opencloud.common.utils.StringUtils;
 
-import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
-import java.io.IOException;
-
 /**
+ * xss 过滤
+ * body 缓存
+ *
  * @author liuyadu
  */
-public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
+public class XssServletRequestWrapper extends HttpServletRequestWrapper {
     private HttpServletRequest request;
 
-    public XssHttpServletRequestWrapper(HttpServletRequest request) {
+    public XssServletRequestWrapper(HttpServletRequest request) {
         super(request);
         this.request = request;
     }
 
     @Override
     public String getParameter(String name) {
+        name = StringUtils.stripXss(name);
         String value = request.getParameter(name);
         if (!StringUtils.isEmpty(value)) {
             value = StringUtils.stripXss(value).trim();
@@ -29,7 +30,18 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
     }
 
     @Override
+    public String getHeader(String name) {
+        name = StringUtils.stripXss(name);
+        String value = super.getHeader(name);
+        if (StringUtils.isNotBlank(value)) {
+            value = StringUtils.stripXss(value);
+        }
+        return value;
+    }
+
+    @Override
     public String[] getParameterValues(String name) {
+        name = StringUtils.stripXss(name);
         String[] parameterValues = super.getParameterValues(name);
         if (parameterValues == null) {
             return null;
@@ -40,9 +52,4 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
         }
         return parameterValues;
     }
-
-    @Override
-    public ServletInputStream getInputStream() throws IOException {
-        return super.getInputStream();
-    }
-} 
+}

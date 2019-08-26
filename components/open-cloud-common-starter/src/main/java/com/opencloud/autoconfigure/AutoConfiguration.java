@@ -1,7 +1,7 @@
 package com.opencloud.autoconfigure;
 
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
-import com.opencloud.common.annotation.AnnotationScan;
+import com.opencloud.common.annotation.ResourceAnnotationScan;
 import com.opencloud.common.configuration.OpenCommonProperties;
 import com.opencloud.common.configuration.OpenIdGenProperties;
 import com.opencloud.common.exception.OpenGlobalExceptionHandler;
@@ -12,7 +12,6 @@ import com.opencloud.common.health.DbHealthIndicator;
 import com.opencloud.common.mybatis.ModelMetaObjectHandler;
 import com.opencloud.common.security.http.OpenRestTemplate;
 import com.opencloud.common.security.oauth2.client.OpenOAuth2ClientProperties;
-import com.opencloud.common.utils.RedisUtils;
 import com.opencloud.common.utils.SpringContextHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.AmqpTemplate;
@@ -37,19 +36,28 @@ import org.springframework.web.client.RestTemplate;
 public class AutoConfiguration {
 
 
+    /**
+     * xss过滤
+     * body缓存
+     *
+     * @return
+     */
     @Bean
-    public FilterRegistrationBean xxsFilter() {
-        FilterRegistrationBean bean = new FilterRegistrationBean(new XssFilter());
-        log.info("bean [{}]", bean);
-        return bean;
+    public FilterRegistrationBean XssFilter() {
+        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean(new XssFilter());
+        log.info("XssFilter [{}]", filterRegistrationBean);
+        return filterRegistrationBean;
     }
 
     /**
      * 分页插件
      */
+    @ConditionalOnMissingBean(PaginationInterceptor.class)
     @Bean
     public PaginationInterceptor paginationInterceptor() {
-        return new PaginationInterceptor();
+        PaginationInterceptor paginationInterceptor = new PaginationInterceptor();
+        log.info("PaginationInterceptor [{}]", paginationInterceptor);
+        return paginationInterceptor;
     }
 
     /**
@@ -61,7 +69,7 @@ public class AutoConfiguration {
     @ConditionalOnMissingBean(BCryptPasswordEncoder.class)
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        log.info("bean [{}]", encoder);
+        log.info("BCryptPasswordEncoder [{}]", encoder);
         return encoder;
     }
 
@@ -75,7 +83,7 @@ public class AutoConfiguration {
     @ConditionalOnMissingBean(SpringContextHolder.class)
     public SpringContextHolder springContextHolder() {
         SpringContextHolder holder = new SpringContextHolder();
-        log.info("bean [{}]", holder);
+        log.info("SpringContextHolder [{}]", holder);
         return holder;
     }
 
@@ -88,7 +96,7 @@ public class AutoConfiguration {
     @ConditionalOnMissingBean(OpenGlobalExceptionHandler.class)
     public OpenGlobalExceptionHandler exceptionHandler() {
         OpenGlobalExceptionHandler exceptionHandler = new OpenGlobalExceptionHandler();
-        log.info("bean [{}]", exceptionHandler);
+        log.info("OpenGlobalExceptionHandler [{}]", exceptionHandler);
         return exceptionHandler;
     }
 
@@ -102,7 +110,7 @@ public class AutoConfiguration {
     @ConditionalOnMissingBean(OpenIdGenProperties.class)
     public SnowflakeIdGenerator snowflakeIdWorker(OpenIdGenProperties properties) {
         SnowflakeIdGenerator snowflakeIdGenerator = new SnowflakeIdGenerator(properties.getWorkId(), properties.getCenterId());
-        log.info("bean [{}] properties [{}]", snowflakeIdGenerator, properties);
+        log.info("SnowflakeIdGenerator [{}]", snowflakeIdGenerator);
         return snowflakeIdGenerator;
     }
 
@@ -113,10 +121,10 @@ public class AutoConfiguration {
      * @return
      */
     @Bean
-    @ConditionalOnMissingBean(AnnotationScan.class)
-    public AnnotationScan annotationScan(AmqpTemplate amqpTemplate) {
-        AnnotationScan scan = new AnnotationScan(amqpTemplate);
-        log.info("bean [{}]", scan);
+    @ConditionalOnMissingBean(ResourceAnnotationScan.class)
+    public ResourceAnnotationScan resourceAnnotationScan(AmqpTemplate amqpTemplate) {
+        ResourceAnnotationScan scan = new ResourceAnnotationScan(amqpTemplate);
+        log.info("ResourceAnnotationScan [{}]", scan);
         return scan;
     }
 
@@ -132,7 +140,7 @@ public class AutoConfiguration {
         OpenRestTemplate restTemplate = new OpenRestTemplate(openCommonProperties, busProperties, publisher);
         //设置自定义ErrorHandler
         restTemplate.setErrorHandler(new OpenRestResponseErrorHandler());
-        log.info("bean [{}]", restTemplate);
+        log.info("OpenRestTemplate [{}]", restTemplate);
         return restTemplate;
     }
 
@@ -141,6 +149,7 @@ public class AutoConfiguration {
         RestTemplate restTemplate = new RestTemplate();
         //设置自定义ErrorHandler
         restTemplate.setErrorHandler(new OpenRestResponseErrorHandler());
+        log.info("RestTemplate [{}]", restTemplate);
         return restTemplate;
     }
 
@@ -148,13 +157,8 @@ public class AutoConfiguration {
     @ConditionalOnMissingBean(DbHealthIndicator.class)
     public DbHealthIndicator dbHealthIndicator() {
         DbHealthIndicator dbHealthIndicator = new DbHealthIndicator();
+        log.info("DbHealthIndicator [{}]", dbHealthIndicator);
         return dbHealthIndicator;
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(RedisUtils.class)
-    public RedisUtils redisUtils() {
-        return new RedisUtils();
     }
 
     /**
@@ -163,7 +167,10 @@ public class AutoConfiguration {
      * @return
      */
     @Bean
+    @ConditionalOnMissingBean(ModelMetaObjectHandler.class)
     public ModelMetaObjectHandler modelMetaObjectHandler() {
-        return new ModelMetaObjectHandler();
+        ModelMetaObjectHandler metaObjectHandler = new ModelMetaObjectHandler();
+        log.info("ModelMetaObjectHandler [{}]", metaObjectHandler);
+        return metaObjectHandler;
     }
 }

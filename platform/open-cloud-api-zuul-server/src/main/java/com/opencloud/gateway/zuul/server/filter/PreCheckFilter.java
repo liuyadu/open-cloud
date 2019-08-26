@@ -28,19 +28,19 @@ public class PreCheckFilter extends OncePerRequestFilter {
 
     private AccessDeniedHandler accessDeniedHandler;
 
-    private AccessAuthorizationManager apiAccessManager;
+    private AccessManager accessManager;
 
-    public PreCheckFilter(AccessAuthorizationManager apiAccessManager, AccessDeniedHandler accessDeniedHandler) {
-        this.apiAccessManager = apiAccessManager;
+    public PreCheckFilter(AccessManager accessManager, AccessDeniedHandler accessDeniedHandler) {
+        this.accessManager = accessManager;
         this.accessDeniedHandler = accessDeniedHandler;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String requestPath = apiAccessManager.getRequestPath(request);
+        String requestPath = accessManager.getRequestPath(request);
         String remoteIpAddress = WebUtils.getRemoteAddress(request);
         String origin = request.getHeader(HttpHeaders.ORIGIN);
-        AuthorityResource resource = apiAccessManager.getResource(requestPath);
+        AuthorityResource resource = accessManager.getResource(requestPath);
         if (resource != null) {
             // 资源是否公共访问验证
             if (STATUS_0.equals(resource.getIsOpen().toString())) {
@@ -62,7 +62,7 @@ public class PreCheckFilter extends OncePerRequestFilter {
 
 
         // ip黑名单验证
-        boolean deny = apiAccessManager.matchIpOrOriginBlacklist(requestPath, remoteIpAddress, origin);
+        boolean deny = accessManager.matchIpOrOriginBlacklist(requestPath, remoteIpAddress, origin);
         if (deny) {
             // 拒绝
             accessDeniedHandler.handle(request, response, new AccessDeniedException(ErrorCode.ACCESS_DENIED_BLACK_LIMITED.getMessage()));
@@ -70,7 +70,7 @@ public class PreCheckFilter extends OncePerRequestFilter {
         }
 
         // ip白名单验证
-        boolean[] matchIpWhiteListResult = apiAccessManager.matchIpOrOriginWhiteList(requestPath, remoteIpAddress, origin);
+        boolean[] matchIpWhiteListResult = accessManager.matchIpOrOriginWhiteList(requestPath, remoteIpAddress, origin);
         boolean hasWhiteList = matchIpWhiteListResult[0];
         boolean allow = matchIpWhiteListResult[1];
         if (hasWhiteList) {

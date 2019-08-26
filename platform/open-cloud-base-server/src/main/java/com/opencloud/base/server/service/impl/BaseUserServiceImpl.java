@@ -21,7 +21,7 @@ import com.opencloud.common.exception.OpenAlertException;
 import com.opencloud.common.model.PageParams;
 import com.opencloud.common.mybatis.base.service.impl.BaseServiceImpl;
 import com.opencloud.common.security.OpenAuthority;
-import com.opencloud.common.security.SecurityConstants;
+import com.opencloud.common.security.OpenSecurityConstants;
 import com.opencloud.common.utils.StringUtils;
 import com.opencloud.common.utils.WebUtils;
 import org.springframework.beans.BeanUtils;
@@ -192,7 +192,7 @@ public class BaseUserServiceImpl extends BaseServiceImpl<BaseUserMapper, BaseUse
                 // 用户角色详情
                 roles.add(roleMap);
                 // 加入角色标识
-                OpenAuthority authority = new OpenAuthority(role.getRoleId().toString(), SecurityConstants.AUTHORITY_PREFIX_ROLE + role.getRoleCode(), null, "role");
+                OpenAuthority authority = new OpenAuthority(role.getRoleId().toString(), OpenSecurityConstants.AUTHORITY_PREFIX_ROLE + role.getRoleCode(), null, "role");
                 authorities.add(authority);
             }
         }

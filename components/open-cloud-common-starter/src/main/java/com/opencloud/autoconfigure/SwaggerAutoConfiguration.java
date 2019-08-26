@@ -50,7 +50,7 @@ public class SwaggerAutoConfiguration {
     public SwaggerAutoConfiguration(OpenSwaggerProperties openSwaggerProperties, MessageSource messageSource) {
         this.openSwaggerProperties = openSwaggerProperties;
         this.messageSource = messageSource;
-        log.info("swagger2 [{}]", openSwaggerProperties);
+        log.info("SwaggerProperties [{}]", openSwaggerProperties);
     }
 
 

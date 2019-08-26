@@ -17,7 +17,7 @@ import com.opencloud.common.exception.OpenException;
 import com.opencloud.common.mybatis.base.service.impl.BaseServiceImpl;
 import com.opencloud.common.security.OpenAuthority;
 import com.opencloud.common.security.OpenHelper;
-import com.opencloud.common.security.SecurityConstants;
+import com.opencloud.common.security.OpenSecurityConstants;
 import com.opencloud.common.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -139,19 +139,19 @@ public class BaseAuthorityServiceImpl extends BaseServiceImpl<BaseAuthorityMappe
         }
         if (ResourceType.menu.equals(resourceType)) {
             BaseMenu menu = baseMenuService.getMenu(resourceId);
-            authority = SecurityConstants.AUTHORITY_PREFIX_MENU + menu.getMenuCode();
+            authority = OpenSecurityConstants.AUTHORITY_PREFIX_MENU + menu.getMenuCode();
             baseAuthority.setMenuId(resourceId);
             baseAuthority.setStatus(menu.getStatus());
         }
         if (ResourceType.action.equals(resourceType)) {
             BaseAction operation = baseActionService.getAction(resourceId);
-            authority = SecurityConstants.AUTHORITY_PREFIX_ACTION + operation.getActionCode();
+            authority = OpenSecurityConstants.AUTHORITY_PREFIX_ACTION + operation.getActionCode();
             baseAuthority.setActionId(resourceId);
             baseAuthority.setStatus(operation.getStatus());
         }
         if (ResourceType.api.equals(resourceType)) {
             BaseApi api = baseApiService.getApi(resourceId);
-            authority = SecurityConstants.AUTHORITY_PREFIX_API + api.getApiCode();
+            authority = OpenSecurityConstants.AUTHORITY_PREFIX_API + api.getApiCode();
             baseAuthority.setApiId(resourceId);
             baseAuthority.setStatus(api.getStatus());
         }

@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
  * @author liuyadu
  */
 @Slf4j
-public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRouteEvent> {
+public class ResourceLocator implements ApplicationListener<RemoteRefreshRouteEvent> {
 
 
     /**
@@ -85,14 +85,14 @@ public class ApiResourceLocator implements ApplicationListener<RemoteRefreshRout
 
     private RouteDefinitionLocator routeDefinitionLocator;
 
-    public ApiResourceLocator() {
+    public ResourceLocator() {
         authorityResources = CacheFlux.lookup(cache, "authorityResources", AuthorityResource.class).onCacheMissResume(Flux.fromIterable(new ArrayList<>()));
         ipBlacks = CacheFlux.lookup(cache, "ipBlacks", IpLimitApi.class).onCacheMissResume(Flux.fromIterable(new ArrayList<>()));
         ipWhites = CacheFlux.lookup(cache, "ipWhites", IpLimitApi.class).onCacheMissResume(Flux.fromIterable(new ArrayList<>()));
     }
 
 
-    public ApiResourceLocator(RouteDefinitionLocator routeDefinitionLocator, BaseAuthorityServiceClient baseAuthorityServiceClient, GatewayServiceClient gatewayServiceClient) {
+    public ResourceLocator(RouteDefinitionLocator routeDefinitionLocator, BaseAuthorityServiceClient baseAuthorityServiceClient, GatewayServiceClient gatewayServiceClient) {
         this();
         this.baseAuthorityServiceClient = baseAuthorityServiceClient;
         this.gatewayServiceClient = gatewayServiceClient;

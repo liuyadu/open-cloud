@@ -156,7 +156,7 @@ public class JdbcRouteDefinitionLocator implements RouteDefinitionLocator, Appli
             if (limitApiList != null) {
                 // 加载限流
                 limitApiList.forEach(item -> {
-                    long[] arry = ApiResourceLocator.getIntervalAndQuota(item.getIntervalUnit());
+                    long[] arry = ResourceLocator.getIntervalAndQuota(item.getIntervalUnit());
                     Long refreshInterval = arry[0];
                     Long quota = arry[1];
                     // 允许用户每秒处理多少个请求

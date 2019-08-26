@@ -22,16 +22,17 @@
  * SOFTWARE.
  *
  */
-package com.opencloud.gateway.spring.server;
+package com.opencloud.gateway.zuul.server;
 
-import com.opencloud.gateway.spring.server.locator.ApiResourceLocator;
-import com.opencloud.gateway.spring.server.locator.JdbcRouteDefinitionLocator;
+import com.opencloud.gateway.zuul.server.locator.ResourceLocator;
+import com.opencloud.gateway.zuul.server.locator.JdbcRouteLocator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.bus.jackson.RemoteApplicationEventScan;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
 
@@ -41,23 +42,26 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  * 开发环境下提供在线调试文档.
  * @author liuyadu
  */
+@EnableZuulProxy
 @EnableFeignClients
 @EnableDiscoveryClient
 @SpringBootApplication
 @RemoteApplicationEventScan(basePackages = "com.opencloud")
-public class ApiGatewaySpringApplication implements CommandLineRunner {
+public class GatewayZuulApplication implements CommandLineRunner {
     @Autowired
-    public ApiResourceLocator apiResourceLocator;
+    private ResourceLocator resourceLocator;
     @Autowired
-    private JdbcRouteDefinitionLocator jdbcRouteDefinitionLocator;
+    private JdbcRouteLocator jdbcRouteLocator;
 
     public static void main(String[] args) {
-        SpringApplication.run(ApiGatewaySpringApplication.class, args);
+        SpringApplication.run(GatewayZuulApplication.class, args);
     }
 
     @Override
     public void run(String... strings) throws Exception {
-        jdbcRouteDefinitionLocator.refresh();
-        apiResourceLocator.refresh();
+        jdbcRouteLocator.doRefresh();
+        resourceLocator.refresh();
     }
+
+
 }

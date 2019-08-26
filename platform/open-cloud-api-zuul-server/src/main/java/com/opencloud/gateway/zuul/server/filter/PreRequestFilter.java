@@ -1,5 +1,6 @@
 package com.opencloud.gateway.zuul.server.filter;
 
+import com.opencloud.gateway.zuul.server.filter.support.BodyReaderHttpServletRequestWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.filter.OncePerRequestFilter;
 

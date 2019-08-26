@@ -53,11 +53,11 @@ public class OpenUserConverter extends DefaultUserAuthenticationConverter {
         if (params.get(USERNAME) != null) {
             auth.setUsername(params.get(USERNAME).toString());
         }
-        if (params.get(SecurityConstants.OPEN_ID) != null) {
-            auth.setUserId(Long.parseLong(params.get(SecurityConstants.OPEN_ID).toString()));
+        if (params.get(OpenSecurityConstants.OPEN_ID) != null) {
+            auth.setUserId(Long.parseLong(params.get(OpenSecurityConstants.OPEN_ID).toString()));
         }
-        if (params.get(SecurityConstants.DOMAIN) != null) {
-            auth.setDomain(params.get(SecurityConstants.DOMAIN).toString());
+        if (params.get(OpenSecurityConstants.DOMAIN) != null) {
+            auth.setDomain(params.get(OpenSecurityConstants.DOMAIN).toString());
         }
         auth.setClientId(params.get(AccessTokenConverter.CLIENT_ID).toString());
         auth.setAuthorities(getAuthorities(map));

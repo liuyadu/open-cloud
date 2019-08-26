@@ -4,7 +4,7 @@ import com.opencloud.gateway.spring.server.exception.JsonAccessDeniedHandler;
 import com.opencloud.gateway.spring.server.exception.JsonAuthenticationEntryPoint;
 import com.opencloud.gateway.spring.server.exception.JsonSignatureDeniedHandler;
 import com.opencloud.gateway.spring.server.filter.*;
-import com.opencloud.gateway.spring.server.locator.ApiResourceLocator;
+import com.opencloud.gateway.spring.server.locator.ResourceLocator;
 import com.opencloud.gateway.spring.server.oauth2.RedisAuthenticationManager;
 import com.opencloud.gateway.spring.server.service.AccessLogService;
 import com.opencloud.gateway.spring.server.service.feign.BaseAppServiceClient;
@@ -50,9 +50,9 @@ public class ResourceServerConfiguration {
     @Autowired
     private RedisConnectionFactory redisConnectionFactory;
     @Autowired
-    private ApiResourceLocator apiAccessLocator;
+    private ResourceLocator apiresourceLocator;
     @Autowired
-    private ApiProperties apiGatewayProperties;
+    private ApiProperties apiProperties;
     @Autowired
     private AccessLogService accessLogService;
     @Autowired
@@ -93,7 +93,7 @@ public class ResourceServerConfiguration {
         // 自定义oauth2 认证, 使用redis读取token,而非jwt方式
         JsonAuthenticationEntryPoint entryPoint = new JsonAuthenticationEntryPoint(accessLogService);
         JsonAccessDeniedHandler accessDeniedHandler = new JsonAccessDeniedHandler(accessLogService);
-        AccessAuthorizationManager accessAuthorizationManager = new AccessAuthorizationManager(apiAccessLocator, apiGatewayProperties);
+        AccessManager accessManager = new AccessManager(apiresourceLocator, apiProperties);
         AuthenticationWebFilter oauth2 = new AuthenticationWebFilter(new RedisAuthenticationManager(new RedisTokenStore(redisConnectionFactory)));
         oauth2.setServerAuthenticationConverter(new ServerBearerTokenAuthenticationConverter());
         oauth2.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(entryPoint));
@@ -113,7 +113,7 @@ public class ResourceServerConfiguration {
                 .authorizeExchange()
                 .pathMatchers("/").permitAll()
                 // 动态权限验证
-                .anyExchange().access(accessAuthorizationManager)
+                .anyExchange().access(accessManager)
                 .and().exceptionHandling()
                 .accessDeniedHandler(accessDeniedHandler)
                 .authenticationEntryPoint(entryPoint).and()
@@ -122,9 +122,9 @@ public class ResourceServerConfiguration {
                 // 跨域过滤器
                 .addFilterAt(corsFilter(), SecurityWebFiltersOrder.CORS)
                 // 签名验证过滤器
-                .addFilterAt(new PreSignatureFilter(baseAppServiceClient,apiGatewayProperties, new JsonSignatureDeniedHandler(accessLogService)), SecurityWebFiltersOrder.CSRF)
+                .addFilterAt(new PreSignatureFilter(baseAppServiceClient,apiProperties, new JsonSignatureDeniedHandler(accessLogService)), SecurityWebFiltersOrder.CSRF)
                 // 访问验证前置过滤器
-                .addFilterAt(new PreCheckFilter(accessAuthorizationManager, accessDeniedHandler), SecurityWebFiltersOrder.CSRF)
+                .addFilterAt(new PreCheckFilter(accessManager, accessDeniedHandler), SecurityWebFiltersOrder.CSRF)
                 // oauth2认证过滤器
                 .addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION)
                 // 日志过滤器

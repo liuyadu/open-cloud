@@ -23,9 +23,9 @@
         <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
         <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
         <dockerfile-maven-plugin.version>1.4.10</dockerfile-maven-plugin.version>
-        <spring-boot.version>2.1.4.RELEASE</spring-boot.version>
-        <spring-boot-admin.version>2.1.4</spring-boot-admin.version>
-        <spring-cloud.version>Greenwich.SR1</spring-cloud.version>
+        <spring-boot.version>2.1.6.RELEASE</spring-boot.version>
+        <spring-boot-admin.version>2.1.6</spring-boot-admin.version>
+        <spring-cloud.version>Greenwich.SR2</spring-cloud.version>
         <alibaba.cloud.version>0.9.0.RELEASE</alibaba.cloud.version>
         <alibaba.fastjson.version>1.2.37</alibaba.fastjson.version>
 
@@ -37,6 +37,7 @@
         <hutool.version>4.1.19</hutool.version>
         <com.google.zxing.version>3.1.0</com.google.zxing.version>
         <swagger2.version>2.9.2</swagger2.version>
+        <swagger-bootstrap-ui.version>1.9.5</swagger-bootstrap-ui.version>
         <oracle.version>10.2.0.4.0</oracle.version>
 
         <!--自定义版本-->

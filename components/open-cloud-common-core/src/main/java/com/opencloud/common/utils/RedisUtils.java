@@ -1,7 +1,6 @@
 package com.opencloud.common.utils;
 
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.CollectionUtils;
 
@@ -14,9 +13,12 @@ import java.util.concurrent.TimeUnit;
  * Redis工具类
  */
 public class RedisUtils<T> {
-    @Autowired
+
+    public RedisUtils(RedisTemplate<String, T> redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
+
     private RedisTemplate<String, T> redisTemplate;
-    // =============================common============================
 
     /**
      * 指定缓存失效时间

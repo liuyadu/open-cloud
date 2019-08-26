@@ -33,23 +33,23 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class PreSignatureFilter implements WebFilter {
     private JsonSignatureDeniedHandler signatureDeniedHandler;
     private BaseAppServiceClient baseAppServiceClient;
-    private ApiProperties apiGatewayProperties;
+    private ApiProperties apiProperties;
     private static final AntPathMatcher pathMatch = new AntPathMatcher();
     private Set<String> signIgnores = new ConcurrentHashSet<>();
 
-    public PreSignatureFilter(BaseAppServiceClient baseAppServiceClient, ApiProperties apiGatewayProperties, JsonSignatureDeniedHandler signatureDeniedHandler) {
+    public PreSignatureFilter(BaseAppServiceClient baseAppServiceClient, ApiProperties apiProperties, JsonSignatureDeniedHandler signatureDeniedHandler) {
+        this.apiProperties = apiProperties;
         this.baseAppServiceClient = baseAppServiceClient;
-        this.apiGatewayProperties = apiGatewayProperties;
         this.signatureDeniedHandler = signatureDeniedHandler;
         // 默认忽略签名
         signIgnores.add("/");
         signIgnores.add("/error");
         signIgnores.add("/favicon.ico");
-        if (apiGatewayProperties != null) {
-            if (apiGatewayProperties.getSignIgnores() != null) {
-                signIgnores.addAll(apiGatewayProperties.getSignIgnores());
+        if (apiProperties != null) {
+            if (apiProperties.getSignIgnores() != null) {
+                signIgnores.addAll(apiProperties.getSignIgnores());
             }
-            if (apiGatewayProperties.getApiDebug()) {
+            if (apiProperties.getApiDebug()) {
                 signIgnores.add("/**/v2/api-docs/**");
                 signIgnores.add("/**/swagger-resources/**");
                 signIgnores.add("/webjars/**");
@@ -63,7 +63,7 @@ public class PreSignatureFilter implements WebFilter {
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         String requestPath = request.getURI().getPath();
-        if (apiGatewayProperties.getCheckSign() && !notSign(requestPath)) {
+        if (apiProperties.getCheckSign() && !notSign(requestPath)) {
             try {
                 Map params = Maps.newHashMap();
                 GatewayContext gatewayContext = exchange.getAttribute(GatewayContext.CACHE_GATEWAY_CONTEXT);
@@ -106,7 +106,7 @@ public class PreSignatureFilter implements WebFilter {
     }
 
     protected boolean notSign(String requestPath) {
-        if (apiGatewayProperties.getSignIgnores() == null) {
+        if (apiProperties.getSignIgnores() == null) {
             return false;
         }
         for (String path : signIgnores) {

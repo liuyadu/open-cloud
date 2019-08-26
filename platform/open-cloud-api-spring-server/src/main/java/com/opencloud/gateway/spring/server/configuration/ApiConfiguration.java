@@ -10,7 +10,8 @@ import com.opencloud.common.utils.SpringContextHolder;
 import com.opencloud.gateway.spring.server.actuator.ApiEndpoint;
 import com.opencloud.gateway.spring.server.exception.JsonExceptionHandler;
 import com.opencloud.gateway.spring.server.filter.GatewayContextFilter;
-import com.opencloud.gateway.spring.server.locator.ApiResourceLocator;
+import com.opencloud.gateway.spring.server.filter.RemoveGatewayContextFilter;
+import com.opencloud.gateway.spring.server.locator.ResourceLocator;
 import com.opencloud.gateway.spring.server.locator.JdbcRouteDefinitionLocator;
 import com.opencloud.gateway.spring.server.service.AccessLogService;
 import com.opencloud.gateway.spring.server.service.feign.BaseAuthorityServiceClient;
@@ -62,7 +63,7 @@ public class ApiConfiguration {
     @ConditionalOnMissingBean(SpringContextHolder.class)
     public SpringContextHolder springContextHolder() {
         SpringContextHolder holder = new SpringContextHolder();
-        log.info("bean [{}]", holder);
+        log.info("SpringContextHolder [{}]", holder);
         return holder;
     }
 
@@ -83,7 +84,7 @@ public class ApiConfiguration {
         jsonExceptionHandler.setViewResolvers(viewResolversProvider.getIfAvailable(Collections::emptyList));
         jsonExceptionHandler.setMessageWriters(serverCodecConfigurer.getWriters());
         jsonExceptionHandler.setMessageReaders(serverCodecConfigurer.getReaders());
-        log.debug("Init Json Exception Handler Instead Default ErrorWebExceptionHandler Success");
+        log.info("ErrorWebExceptionHandler [{}]", jsonExceptionHandler);
         return jsonExceptionHandler;
     }
 
@@ -100,6 +101,7 @@ public class ApiConfiguration {
         properties.getSerialization().put(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, true);
         properties.setDateFormat("yyyy-MM-dd HH:mm:ss");
         properties.setTimeZone(TimeZone.getTimeZone("GMT+8"));
+        log.info("JacksonProperties [{}]", properties);
         return properties;
     }
 
@@ -127,6 +129,7 @@ public class ApiConfiguration {
         simpleModule.addSerializer(Long.TYPE, ToStringSerializer.instance);
         objectMapper.registerModule(simpleModule);
         jackson2HttpMessageConverter.setObjectMapper(objectMapper);
+        log.info("MappingJackson2HttpMessageConverter [{}]", jackson2HttpMessageConverter);
         return new HttpMessageConverters(jackson2HttpMessageConverter);
     }
 
@@ -143,7 +146,9 @@ public class ApiConfiguration {
      */
     @Bean
     public JdbcRouteDefinitionLocator jdbcRouteDefinitionLocator(JdbcTemplate jdbcTemplate) {
-        return new JdbcRouteDefinitionLocator(jdbcTemplate);
+        JdbcRouteDefinitionLocator jdbcRouteDefinitionLocator =  new JdbcRouteDefinitionLocator(jdbcTemplate);
+        log.info("JdbcRouteDefinitionLocator [{}]", jdbcRouteDefinitionLocator);
+        return  jdbcRouteDefinitionLocator;
     }
 
     /**
@@ -153,8 +158,10 @@ public class ApiConfiguration {
      */
     @Bean
     @Lazy
-    public ApiResourceLocator apiResourceLocator(RouteDefinitionLocator routeDefinitionLocator, BaseAuthorityServiceClient baseAuthorityServiceClient, GatewayServiceClient gatewayServiceClient) {
-        return new ApiResourceLocator(routeDefinitionLocator, baseAuthorityServiceClient, gatewayServiceClient);
+    public ResourceLocator resourceLocator(RouteDefinitionLocator routeDefinitionLocator, BaseAuthorityServiceClient baseAuthorityServiceClient, GatewayServiceClient gatewayServiceClient) {
+        ResourceLocator resourceLocator =  new ResourceLocator(routeDefinitionLocator, baseAuthorityServiceClient, gatewayServiceClient);
+        log.info("ResourceLocator [{}]", resourceLocator);
+        return resourceLocator;
     }
 
     /**
@@ -167,13 +174,28 @@ public class ApiConfiguration {
     @Bean
     @ConditionalOnEnabledEndpoint
     @ConditionalOnClass({Endpoint.class})
-    public ApiEndpoint openApiEndpoint(ApplicationContext context, BusProperties bus) {
+    public ApiEndpoint apiEndpoint(ApplicationContext context, BusProperties bus) {
         ApiEndpoint endpoint = new ApiEndpoint(context, bus.getId());
-        log.info("bean [{}]", endpoint);
+        log.info("ApiEndpoint [{}]", endpoint);
         return endpoint;
     }
 
-    /*@Bean
+    @Bean
+    @ConditionalOnMissingBean(GatewayContextFilter.class)
+    public GatewayContextFilter gatewayContextFilter(){
+        log.debug("Load GatewayContextFilter Config Bean");
+        return new GatewayContextFilter();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(RemoveGatewayContextFilter.class)
+    public RemoveGatewayContextFilter removeGatewayContextFilter(){
+        RemoveGatewayContextFilter gatewayContextFilter = new RemoveGatewayContextFilter();
+        log.debug("Load RemoveGatewayContextFilter Config Bean");
+        return gatewayContextFilter;
+    }
+
+     /*@Bean
     public KeyResolver ipKeyResolver() {
         return exchange -> Mono.just(exchange.getRequest().getRemoteAddress().getHostName());
     }*/
@@ -181,10 +203,5 @@ public class ApiConfiguration {
     @Bean
     public KeyResolver pathKeyResolver() {
         return exchange -> Mono.just(exchange.getRequest().getPath().value());
-    }
-
-    @Bean
-    public GatewayContextFilter gatewayContextFilter(){
-        return new GatewayContextFilter();
     }
 }

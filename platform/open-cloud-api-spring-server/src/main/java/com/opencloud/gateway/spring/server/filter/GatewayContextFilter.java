@@ -1,10 +1,11 @@
 package com.opencloud.gateway.spring.server.filter;
 
+import com.alibaba.fastjson.JSONObject;
 import com.opencloud.gateway.spring.server.filter.context.GatewayContext;
+import com.opencloud.gateway.spring.server.filter.support.CachedBodyOutputMessage;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.support.BodyInserterContext;
-import org.springframework.cloud.gateway.support.CachedBodyOutputMessage;
 import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -35,7 +36,7 @@ import java.util.Map;
 /**
  * SpringCloud Gateway 记录缓存请求Body和Form表单
  * GatewayContext gatewayContext = exchange.getAttribute(GatewayContext.CACHE_GATEWAY_CONTEXT);
- * https://segmentfault.com/a/1190000017898354
+ * https://github.com/chenggangpro/spring-cloud-gateway-plugin
  * @author liuyadu
  */
 @Slf4j
@@ -76,6 +77,7 @@ public class GatewayContextFilter implements WebFilter, Ordered {
     public int getOrder() {
         return Integer.MIN_VALUE;
     }
+
 
     /**
      * ReadFormData
@@ -170,7 +172,7 @@ public class GatewayContextFilter implements WebFilter, Ordered {
      * @param chain
      * @return
      */
-    private Mono<Void> readBody(ServerWebExchange exchange,WebFilterChain chain,GatewayContext gatewayContext){
+    private Mono<Void> readBody(ServerWebExchange exchange, WebFilterChain chain, GatewayContext gatewayContext){
         return DataBufferUtils.join(exchange.getRequest().getBody())
                 .flatMap(dataBuffer -> {
                     /*
@@ -200,6 +202,11 @@ public class GatewayContextFilter implements WebFilter, Ordered {
                             .bodyToMono(String.class)
                             .doOnNext(objectValue -> {
                                 gatewayContext.setRequestBody(objectValue);
+                                try {
+                                    gatewayContext.getAllRequestData().setAll(JSONObject.parseObject(objectValue, Map.class));
+                                }catch (Exception e){
+                                    log.error("[GatewayContext]Read JsonBody error:{}",e);
+                                }
                                 log.debug("[GatewayContext]Read JsonBody Success");
                             }).then(chain.filter(mutatedExchange));
                 });

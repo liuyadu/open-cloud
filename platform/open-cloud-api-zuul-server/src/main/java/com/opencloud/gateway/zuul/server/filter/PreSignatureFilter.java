@@ -9,6 +9,7 @@ import com.opencloud.common.utils.SignatureUtils;
 import com.opencloud.common.utils.WebUtils;
 import com.opencloud.gateway.zuul.server.configuration.ApiProperties;
 import com.opencloud.gateway.zuul.server.exception.JsonSignatureDeniedHandler;
+import com.opencloud.gateway.zuul.server.filter.support.BodyReaderHttpServletRequestWrapper;
 import com.opencloud.gateway.zuul.server.service.feign.BaseAppServiceClient;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -31,23 +32,23 @@ import java.util.Set;
 public class PreSignatureFilter extends OncePerRequestFilter {
     private JsonSignatureDeniedHandler signatureDeniedHandler;
     private BaseAppServiceClient baseAppServiceClient;
-    private ApiProperties apiGatewayProperties;
+    private ApiProperties apiProperties;
     private static final AntPathMatcher pathMatch = new AntPathMatcher();
     private Set<String> signIgnores = new ConcurrentHashSet<>();
 
-    public PreSignatureFilter(BaseAppServiceClient baseAppServiceClient, ApiProperties apiGatewayProperties,JsonSignatureDeniedHandler jsonSignatureDeniedHandler) {
+    public PreSignatureFilter(BaseAppServiceClient baseAppServiceClient, ApiProperties apiProperties,JsonSignatureDeniedHandler jsonSignatureDeniedHandler) {
         this.baseAppServiceClient = baseAppServiceClient;
-        this.apiGatewayProperties = apiGatewayProperties;
+        this.apiProperties = apiProperties;
         this.signatureDeniedHandler =  jsonSignatureDeniedHandler;
         // 默认忽略签名
         signIgnores.add("/");
         signIgnores.add("/error");
         signIgnores.add("/favicon.ico");
-        if (apiGatewayProperties != null) {
-            if (apiGatewayProperties.getSignIgnores() != null) {
-                signIgnores.addAll(apiGatewayProperties.getSignIgnores());
+        if (apiProperties != null) {
+            if (apiProperties.getSignIgnores() != null) {
+                signIgnores.addAll(apiProperties.getSignIgnores());
             }
-            if (apiGatewayProperties.getApiDebug()) {
+            if (apiProperties.getApiDebug()) {
                 signIgnores.add("/**/v2/api-docs/**");
                 signIgnores.add("/**/swagger-resources/**");
                 signIgnores.add("/webjars/**");
@@ -60,9 +61,10 @@ public class PreSignatureFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String requestPath = request.getRequestURI();
-        if (apiGatewayProperties.getCheckSign() && !notSign(requestPath)) {
+        BodyReaderHttpServletRequestWrapper requestWrapper = (BodyReaderHttpServletRequestWrapper) request;
+        if (apiProperties.getCheckSign() && !notSign(requestPath)) {
             try {
-                Map params = WebUtils.getParameterMap(request);
+                Map params = WebUtils.getParameterMap(requestWrapper);
                 // 验证请求参数
                 SignatureUtils.validateParams(params);
                 //开始验证签名
@@ -90,7 +92,7 @@ public class PreSignatureFilter extends OncePerRequestFilter {
     }
 
     protected boolean notSign(String requestPath) {
-        if(apiGatewayProperties.getSignIgnores()==null){
+        if(apiProperties.getSignIgnores()==null){
             return false;
         }
         for (String path : signIgnores) {

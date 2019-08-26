@@ -3,8 +3,11 @@ package com.opencloud.autoconfigure;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.opencloud.common.utils.RedisUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +17,7 @@ import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.cache.RedisCacheWriter;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -60,7 +64,6 @@ public class RedisCacheAutoConfiguration {
         template.setHashValueSerializer(jackson2JsonRedisSerializer);
         template.setDefaultSerializer(jackson2JsonRedisSerializer);
         return template;
-
     }
 
     /**
@@ -80,5 +83,15 @@ public class RedisCacheAutoConfiguration {
         return RedisCacheManager
                 .builder(RedisCacheWriter.nonLockingRedisCacheWriter(redisConnectionFactory))
                 .cacheDefaults(redisCacheConfiguration).build();
+    }
+
+
+    @Bean
+    @ConditionalOnMissingBean(RedisUtils.class)
+    @ConditionalOnBean(StringRedisTemplate.class)
+    public RedisUtils redisUtils(StringRedisTemplate stringRedisTemplate) {
+        RedisUtils redisUtils =   new RedisUtils(stringRedisTemplate);
+        log.info("RedisUtils [{}]", redisUtils);
+        return redisUtils;
     }
 }

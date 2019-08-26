@@ -2,15 +2,13 @@ package com.opencloud.gateway.zuul.server.filter.support;
 
 import com.opencloud.common.utils.WebUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 
 import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.Charset;
 
 /**
@@ -20,27 +18,18 @@ import java.nio.charset.Charset;
 public class BodyReaderHttpServletRequestWrapper extends HttpServletRequestWrapper {
 
     private final byte[] body;
-    private int contentLength;
 
     public BodyReaderHttpServletRequestWrapper(HttpServletRequest request) throws IOException {
         super(request);
-        body = WebUtils.getBodyString(request).getBytes(Charset.forName("UTF-8"));
-        contentLength = body.length;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        IOUtils.copy(request.getInputStream(), baos);
+        body = baos.toByteArray();
+
     }
 
     @Override
     public BufferedReader getReader() throws IOException {
         return new BufferedReader(new InputStreamReader(getInputStream()));
-    }
-
-    @Override
-    public int getContentLength() {
-        return contentLength;
-    }
-
-    @Override
-    public long getContentLengthLong() {
-        return (long) this.getContentLength();
     }
 
     @Override

@@ -61,10 +61,9 @@ public class PreSignatureFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String requestPath = request.getRequestURI();
-        BodyReaderHttpServletRequestWrapper requestWrapper = (BodyReaderHttpServletRequestWrapper) request;
         if (apiProperties.getCheckSign() && !notSign(requestPath)) {
             try {
-                Map params = WebUtils.getParameterMap(requestWrapper);
+                Map params = WebUtils.getParameterMap(request);
                 // 验证请求参数
                 SignatureUtils.validateParams(params);
                 //开始验证签名
@@ -88,7 +87,7 @@ public class PreSignatureFilter extends OncePerRequestFilter {
                 return;
             }
         }
-        filterChain.doFilter(requestWrapper, response);
+        filterChain.doFilter(request, response);
     }
 
     protected boolean notSign(String requestPath) {

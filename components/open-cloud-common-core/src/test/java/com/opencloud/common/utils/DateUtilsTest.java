@@ -1,19 +1,15 @@
 package com.opencloud.common.utils;
 
-import com.opencloud.common.utils.DateUtils;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.rules.Timeout;
 
 import java.util.Date;
 
 public class DateUtilsTest {
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
-
-  @Rule public final Timeout globalTimeout = new Timeout(10000);
 
   // Test written by Diffblue Cover.
 

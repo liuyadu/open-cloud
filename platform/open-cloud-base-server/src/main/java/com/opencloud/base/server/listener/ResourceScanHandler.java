@@ -3,11 +3,12 @@ package com.opencloud.base.server.listener;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
-import com.opencloud.base.server.service.BaseApiService;
 import com.opencloud.base.client.model.entity.BaseApi;
+import com.opencloud.base.server.service.BaseApiService;
 import com.opencloud.base.server.service.BaseAuthorityService;
 import com.opencloud.common.constants.QueueConstants;
 import com.opencloud.common.security.http.OpenRestTemplate;
+import com.opencloud.common.utils.BeanConvertUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import java.time.Duration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * mq消息接收者
@@ -55,9 +57,9 @@ public class ResourceScanHandler {
             Iterator iterator = array.iterator();
             List<String> codes = Lists.newArrayList();
             while (iterator.hasNext()) {
-                JSONObject jsonObject = (JSONObject) iterator.next();
+                Map map = (Map) iterator.next();
                 try {
-                    BaseApi api = jsonObject.toJavaObject(BaseApi.class);
+                    BaseApi api = BeanConvertUtils.mapToObject(map,BaseApi.class);
                     codes.add(api.getApiCode());
                     BaseApi save = baseApiService.getApi(api.getApiCode());
                     if (save == null) {

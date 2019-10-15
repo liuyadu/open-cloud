@@ -123,7 +123,7 @@ INSERT INTO `gateway_rate_limit_api` VALUES ('1149260244919205889', '11491682086
 -- ----------------------------
 DROP TABLE IF EXISTS `gateway_route`;
 CREATE TABLE `gateway_route` (
-  `route_id` varchar(64) NOT NULL COMMENT '路由ID',
+  `route_id` bigint(20) NOT NULL COMMENT '路由ID',
   `route_name` varchar(255) NOT NULL COMMENT '路由名称',
   `path` varchar(255) DEFAULT NULL COMMENT '路径',
   `service_id` varchar(255) DEFAULT NULL COMMENT '服务ID',

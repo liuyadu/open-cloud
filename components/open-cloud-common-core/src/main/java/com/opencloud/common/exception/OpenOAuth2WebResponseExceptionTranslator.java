@@ -19,7 +19,7 @@ public class OpenOAuth2WebResponseExceptionTranslator implements WebResponseExce
     @Override
     public ResponseEntity translate(Exception e) throws Exception {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        ResultBody responseData = OpenGlobalExceptionHandler.resolveOauthException(e,request.getRequestURI());
+        ResultBody responseData = OpenGlobalExceptionHandler.resolveException(e,request.getRequestURI());
         return ResponseEntity.status(responseData.getHttpStatus()).body(responseData);
     }
 }

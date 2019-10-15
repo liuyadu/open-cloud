@@ -208,7 +208,7 @@ public class BaseAccountServiceImpl extends BaseServiceImpl<BaseAccountMapper, B
     public void addLoginLog(BaseAccountLogs log) {
         QueryWrapper<BaseAccountLogs> queryWrapper = new QueryWrapper();
         queryWrapper.lambda()
-                .eq(BaseAccountLogs::getAccountId, log.getDomain())
+                .eq(BaseAccountLogs::getAccountId, log.getAccountId())
                 .eq(BaseAccountLogs::getUserId, log.getUserId());
         int count = baseAccountLogsMapper.selectCount(queryWrapper);
         log.setLoginTime(new Date());

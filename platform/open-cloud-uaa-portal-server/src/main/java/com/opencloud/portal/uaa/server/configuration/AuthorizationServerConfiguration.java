@@ -125,7 +125,6 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
         tokenServices.setSupportRefreshToken(true);
         tokenServices.setReuseRefreshToken(true);
         tokenServices.setClientDetailsService(customClientDetailsService);
-        tokenServices.setTokenEnhancer(tokenEnhancer());
         return tokenServices;
     }
 

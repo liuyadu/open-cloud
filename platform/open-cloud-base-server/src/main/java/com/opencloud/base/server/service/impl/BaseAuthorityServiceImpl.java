@@ -3,7 +3,6 @@ package com.opencloud.base.server.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.opencloud.base.client.constants.BaseConstants;
 import com.opencloud.base.client.constants.ResourceType;
 import com.opencloud.base.client.model.AuthorityApi;
 import com.opencloud.base.client.model.AuthorityMenu;
@@ -375,9 +374,6 @@ public class BaseAuthorityServiceImpl extends BaseServiceImpl<BaseAuthorityMappe
         BaseApp baseApp = baseAppService.getAppInfo(appId);
         if (baseApp == null) {
             return;
-        }
-        if (baseApp.getIsPersist().equals(BaseConstants.ENABLED)) {
-            throw new OpenAlertException(String.format("保留数据,不允许授权"));
         }
         // 清空应用已有授权
         QueryWrapper<BaseAuthorityApp> appQueryWrapper = new QueryWrapper();

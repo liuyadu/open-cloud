@@ -305,6 +305,7 @@ CREATE TABLE `base_app` (
 -- Records of base_app
 -- ----------------------------
 INSERT INTO `base_app` VALUES ('1552274783265', '7gBZcbsC7kLIWCdELIl8nxcs', '0osTIhce7uPvDKHz6aa67bhCukaKoYl4', '平台用户认证服务器', 'open-cloud-uaa-admin-server', '', 'server', '资源服务器', '', 'http://www.baidu.com', '0', '2018-11-12 17:48:45', '2019-07-11 18:31:05', '1', '1');
+INSERT INTO `base_app` VALUES ('1552294656514', 'rOOM15Zbc3UFWgW2h71gRFvi', '2Iw2B0UCMYd1cZjt8Fpr4KJUx75wQCwW', 'SSO单点登录DEMO', 'sso-demo', '', 'server', 'sso', '', 'http://www.baidu.com', '0', '2018-11-12 17:48:45', '2019-07-11 18:31:05', '1', '1');
 
 -- ----------------------------
 -- Table structure for base_authority

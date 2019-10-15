@@ -75,15 +75,13 @@ public class PreSignatureFilter implements WebFilter {
                 SignatureUtils.validateParams(params);
                 //开始验证签名
                 if (baseAppServiceClient != null) {
-                    String appId = params.get("appId").toString();
+                    String appId = params.get(CommonConstants.SIGN_APP_ID_KEY).toString();
                     // 获取客户端信息
                     ResultBody<BaseApp> result = baseAppServiceClient.getApp(appId);
                     BaseApp app = result.getData();
                     if (app == null || app.getAppId() == null) {
                         return signatureDeniedHandler.handle(exchange, new OpenSignatureException("appId无效"));
                     }
-                    // 强制覆盖请求参数clientId
-                    params.put(CommonConstants.SIGN_APP_ID_KEY, app.getAppId());
                     // 服务器验证签名结果
                     if (!SignatureUtils.validateSign(params, app.getSecretKey())) {
                         return signatureDeniedHandler.handle(exchange, new OpenSignatureException("签名验证失败!"));

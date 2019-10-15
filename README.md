@@ -22,13 +22,15 @@
 <a target="_blank" href="http://www.openc.top">开发平台门户预览</a> 
 
 <a target="_blank" href="http://admin.openc.top">运营管理后台预览</a>
+
+<a target="_blank" href="http://pro.openc.top">运营管理后台-专业版预览</a>
+
 + 后台默认账号:admin 123456  
 + 后台测试账号:test 123456
 + SpringBootAdmin账号:sba 123456
 
-#### 扫码进群 
-交流群:760809808  
-扫码进群： ![760809808](/docs/qq.png)  
+#### 交流群 
+学习交流(千人群):760809808 <a target="_blank" href="//shang.qq.com/wpa/qunwpa?idkey=3c1017efeda485820c9eddee13a125d99261f7504746aa4824bc5c7c2b9a4234"><img border="0" src="//pub.idqqimg.com/wpa/images/group.png" alt="open-cloud交流群" title="open-cloud交流群"></a>  
 
 #### 功能介绍
 ![功能介绍](/docs/功能介绍.png)  
@@ -41,6 +43,9 @@
 
 #### vue后台UI源码
 <a target="_blank" href="https://gitee.com/liuyadu/open-admin-ui">后台UI源码</a>
+
+#### vue后台UI专业版源码
+<a target="_blank" href="https://gitee.com/liuyadu_open/open-admin-pro">专业版后台UI源码</a>
 
 #### vue门户UI源码
 <a target="_blank" href="https://gitee.com/liuyadu_open/open-portal-ui.git">门户UI源码</a>

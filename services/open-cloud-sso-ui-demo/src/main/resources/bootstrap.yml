@@ -35,7 +35,7 @@ security:
     client:
       client-id: rOOM15Zbc3UFWgW2h71gRFvi
       client-secret: 2Iw2B0UCMYd1cZjt8Fpr4KJUx75wQCwW
-      access-token-uri: http://api.openc.top/admin/oauth/token
-      user-authorization-uri: http://api.openc.top/admin/oauth/authorize
+      access-token-uri: http://39.106.187.125:8211/oauth/token
+      user-authorization-uri: http://39.106.187.125:8211/oauth/authorize
     resource:
-      token-info-uri: http://api.openc.top/admin/oauth/check_token
+      token-info-uri: http://39.106.187.125:8211/oauth/check_token

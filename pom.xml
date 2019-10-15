@@ -22,12 +22,13 @@
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
         <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
         <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
-        <dockerfile-maven-plugin.version>1.4.10</dockerfile-maven-plugin.version>
+        <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
+        <maven-dockerfile-plugin.version>1.4.10</maven-dockerfile-plugin.version>
         <spring-boot.version>2.1.6.RELEASE</spring-boot.version>
         <spring-boot-admin.version>2.1.6</spring-boot-admin.version>
         <spring-cloud.version>Greenwich.SR2</spring-cloud.version>
         <alibaba.cloud.version>0.9.0.RELEASE</alibaba.cloud.version>
-        <alibaba.fastjson.version>1.2.37</alibaba.fastjson.version>
+        <alibaba.fastjson.version>1.2.60</alibaba.fastjson.version>
 
         <apache.commons-lang3.version>3.3.2</apache.commons-lang3.version>
         <apache.commons-io.version>2.5</apache.commons-io.version>
@@ -46,11 +47,23 @@
         <opencloud.msg-client.version>3.0.0-SNAPSHOT</opencloud.msg-client.version>
         <opencloud.bpm-client.version>3.0.0-SNAPSHOT</opencloud.bpm-client.version>
         <opencloud.task-client.version>3.0.0-SNAPSHOT</opencloud.task-client.version>
-        <!--私有镜像仓库-->
-        <docker.registry>172.17.207.82:5000</docker.registry>
+
         <!--镜像前缀-->
         <docker.image.prefix>platform</docker.image.prefix>
     </properties>
+
+    <!--nexus 私有仓库发布地址 -->
+    <distributionManagement>
+        <!--maven的settings.xml文件中设置<server>标签-->
+        <repository>
+            <id>open-cloud-releases</id>
+            <url>http://39.106.187.125:8081/repository/maven-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>open-cloud-snapshots</id>
+            <url>http://39.106.187.125:8081/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <!-- 环境 -->
     <profiles>
@@ -64,6 +77,8 @@
             <properties>
                 <!--当前环境-->
                 <profile.name>dev</profile.name>
+                <!--私有镜像仓库-->
+                <docker.registry>172.17.207.82:5000</docker.registry>
                 <!--Nacos配置中心地址-->
                 <config.server-addr>127.0.0.1:8848</config.server-addr>
                 <!--Nacos配置中心命名空间,用于支持多环境.这里必须使用ID，不能使用名称,默认为空-->
@@ -78,6 +93,8 @@
             <properties>
                 <!--当前环境-->
                 <profile.name>test</profile.name>
+                <!--私有镜像仓库-->
+                <docker.registry>172.17.207.82:5000</docker.registry>
                 <!--Nacos配置中心地址-->
                 <config.server-addr>172.17.207.82:8848</config.server-addr>
                 <!--Nacos配置中心命名空间,用于支持多环境.这里必须使用ID，不能使用名称,默认为空-->
@@ -94,6 +111,8 @@
                 <profile.name></profile.name>
                 <!--Nacos配置中心地址-->
                 <config.server-addr>172.17.207.82:8848</config.server-addr>
+                <!--私有镜像仓库-->
+                <docker.registry>172.17.207.82:5000</docker.registry>
                 <!--Nacos配置中心命名空间,用于支持多环境.这里必须使用ID，不能使用名称,默认为空-->
                 <config.namespace></config.namespace>
                 <!--Nacos服务发现地址-->
@@ -126,6 +145,7 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
     <build>
         <resources>
             <!-- 先指定 src/main/resources下所有文件及文件夹为资源文件 -->

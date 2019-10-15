@@ -29,7 +29,6 @@ import java.util.Map;
 @Api(tags = "用户认证中心")
 @RestController
 public class LoginController {
-
     @Autowired
     private OpenOAuth2ClientProperties clientProperties;
     @Autowired

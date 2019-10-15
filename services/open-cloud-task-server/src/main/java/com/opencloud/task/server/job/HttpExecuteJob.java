@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.http.*;
-import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -28,12 +27,6 @@ public class HttpExecuteJob implements Job {
     private OpenRestTemplate openRestTemplate;
 
     /**
-     * 由于微服务间有安全限制,这里使用公共客户端ID发起调度请求
-     * oauth2 请求模板类
-     */
-    private OAuth2RestTemplate oAuth2RestTemplate;
-
-    /**
      * 负载均衡
      */
     @Autowired
@@ -42,9 +35,6 @@ public class HttpExecuteJob implements Job {
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws RuntimeException {
-        if (oAuth2RestTemplate == null) {
-            oAuth2RestTemplate = openRestTemplate.buildOAuth2ClientRequest();
-        }
         JobDataMap dataMap = jobExecutionContext.getJobDetail().getJobDataMap();
         String serviceId = dataMap.getString("serviceId");
         String method = dataMap.getString("method");
@@ -77,7 +67,7 @@ public class HttpExecuteJob implements Job {
             }
         }
         log.debug("==> url[{}] method[{}] data=[{}]", url, httpMethod, requestEntity);
-        ResponseEntity<String> result = oAuth2RestTemplate.exchange(url, httpMethod, requestEntity, String.class);
+        ResponseEntity<String> result = openRestTemplate.exchange(url, httpMethod, requestEntity, String.class);
         System.out.println(result.getBody());
     }
 }

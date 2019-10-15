@@ -3,6 +3,7 @@ package com.opencloud.gateway.zuul.server.configuration;
 import com.google.common.collect.Lists;
 import com.marcosbarbero.cloud.autoconfigure.zuul.ratelimit.config.properties.RateLimitProperties;
 import com.netflix.zuul.ZuulFilter;
+import com.opencloud.gateway.zuul.server.filter.ModifyHeaderFilter;
 import com.opencloud.gateway.zuul.server.filter.ZuulErrorFilter;
 import com.opencloud.gateway.zuul.server.filter.ZuulResponseFilter;
 import com.opencloud.gateway.zuul.server.locator.ResourceLocator;
@@ -64,9 +65,9 @@ public class GatewayConfiguration {
      */
     @Bean
     public ZuulFilter zuulResponseFilter() {
-        ZuulFilter zuulFilter =  new ZuulResponseFilter(accessLogService);
+        ZuulFilter zuulFilter = new ZuulResponseFilter(accessLogService);
         log.info("ZuulErrorFilter [{}]", zuulFilter);
-        return  zuulFilter;
+        return zuulFilter;
     }
 
     /**
@@ -76,11 +77,22 @@ public class GatewayConfiguration {
      */
     @Bean
     public ZuulFilter zuulErrorFilter() {
-        ZuulFilter zuulFilter =  new ZuulErrorFilter(accessLogService);
+        ZuulFilter zuulFilter = new ZuulErrorFilter(accessLogService);
         log.info("ZuulErrorFilter [{}]", zuulFilter);
-        return  zuulFilter;
+        return zuulFilter;
     }
 
+    /**
+     * 修改请求头
+     *
+     * @return
+     */
+    @Bean
+    public ZuulFilter modifyHeaderFilter() {
+        ZuulFilter zuulFilter = new ModifyHeaderFilter();
+        log.info("ModifyHeaderFilter [{}]", zuulFilter);
+        return zuulFilter;
+    }
 
     /**
      * 资源加载器

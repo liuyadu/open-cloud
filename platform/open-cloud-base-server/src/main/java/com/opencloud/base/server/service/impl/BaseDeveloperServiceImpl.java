@@ -229,7 +229,7 @@ public class BaseDeveloperServiceImpl extends BaseServiceImpl<BaseDeveloperMappe
             // 用户权限信息
             // 复制账号信息
             UserAccount userAccount = new UserAccount();
-            BeanUtils.copyProperties(userAccount, baseAccount);
+            BeanUtils.copyProperties(baseAccount, userAccount);
             return userAccount;
         }
         return null;
